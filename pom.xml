@@ -10,14 +10,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rte-france.powsybl</groupId>
-    <artifactId>powsybl-odre-server</artifactId>
+    <groupId>org.gridsuite</groupId>
+    <artifactId>gridsuite-odre-server</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>ODRE server</name>
     <description>Open Data Reseaux Energies geographical data import service</description>
-    <url>http://www.powsybl.org</url>
+    <url>http://www.gridsuite.org</url>
 
     <licenses>
         <license>
@@ -27,9 +27,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/rte-france/powsybl-odre-server.git</connection>
-        <developerConnection>scm:git:https://github.com/rte-france/powsybl-odre-server.git</developerConnection>
-        <url>https://github.com/rte-france/powsybl-odre-server</url>
+        <connection>scm:git:https://github.com/gridsuite/odre-server.git</connection>
+        <developerConnection>scm:git:https://github.com/gridsuite/odre-server.git</developerConnection>
+        <url>https://github.com/gridsuite/odre-server</url>
     </scm>
 
     <developers>
