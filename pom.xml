@@ -44,7 +44,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
 
         <maven.clean.version>3.1.0</maven.clean.version>
         <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
@@ -53,13 +53,13 @@
         <maven.jacoco.version>0.8.4</maven.jacoco.version>
         <maven.resources.version>3.1.0</maven.resources.version>
         <maven.site.version>3.7.1</maven.site.version>
-        <maven.surefire.version>2.22.0</maven.surefire.version>
+        <maven.surefire.version>2.22.2</maven.surefire.version>
 
         <jgrapht.version>1.0.1</jgrapht.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.18.8</lombok.version>
         <mockito.version>2.28.2</mockito.version>
-        <springboot.version>2.2.2.RELEASE</springboot.version>
+        <springboot.version>2.2.5.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
 
         <powsyblcore.version>3.0.0</powsyblcore.version>
@@ -141,8 +141,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.version}</version>
                     <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -171,7 +170,7 @@
                     <version>${jib.version}</version>
                     <configuration>
                         <from>
-                            <image>openjdk:8</image>
+                            <image>openjdk:11</image>
                         </from>
                     </configuration>
                     <executions>
