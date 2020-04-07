@@ -13,11 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
 public class DistanceCalculator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DistanceCalculator.class);
 
-    public static void main(String[] args) {
-        LOGGER.warn("{} Meters", distance(32.9697, -96.80322, 29.46786, -98.53506, "M"));
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DistanceCalculator.class);
 
     public static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
         if ((lat1 == lat2) && (lon1 == lon2)) {

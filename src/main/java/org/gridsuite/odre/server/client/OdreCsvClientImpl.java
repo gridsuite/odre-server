@@ -295,8 +295,4 @@ public class OdreCsvClientImpl implements OdreClient {
     public List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath) {
         return new ArrayList<>(parseLines(aerialLinesFilePath, undergroundLinesFilePath).values());
     }
-
-    public static void main(String[] args) {
-        new OdreCsvClientImpl().getLines();
-    }
 }

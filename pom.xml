@@ -175,24 +175,6 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven.resources.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>${jib.version}</version>
-                    <configuration>
-                        <from>
-                            <image>openjdk:11</image>
-                        </from>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>dockerBuild</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
