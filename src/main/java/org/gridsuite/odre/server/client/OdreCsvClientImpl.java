@@ -144,91 +144,88 @@ public class OdreCsvClientImpl implements OdreClient {
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
-        int linesWithMoreThanTwoBranchs = 0;
-        int linesWithTwoConnectedSets = 0;
-        int oneConnectedComponentIgnored = 0;
-        int added = 0;
+        int linesWithOneConnectedSet = 0;
+        int linesWithTwoOrMoreConnectedSets = 0;
+
+        int oneConnectedSetDiscarded = 0;
+        int twoOrMoreConnectedSetsDiscarded = 0;
 
         for (Map.Entry<String, UndirectedGraph<Coordinate, Object>> e : graphByLine.entrySet()) {
             String lineId = e.getKey();
             UndirectedGraph<Coordinate, Object> graph = e.getValue();
             List<Set<Coordinate>> connectedSets = new ConnectivityInspector<>(graph).connectedSets();
             if (connectedSets.size() == 1) {
-                List<Coordinate> ends = new ArrayList<>();
-                for (Coordinate coordinate : connectedSets.get(0)) {
-                    if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
-                        ends.add(coordinate);
-                    }
-                }
+                linesWithOneConnectedSet++;
+                List<Coordinate> ends = getEnds(connectedSets.get(0), graph);
+
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
                     LineGeoData line = new LineGeoData(lineId, Country.FR, Country.FR, coordinates);
                     lines.put(lineId, line);
                 } else {
-                    oneConnectedComponentIgnored++;
+                    oneConnectedSetDiscarded++;
                 }
-            } else if (connectedSets.size() == 2) {
-                linesWithTwoConnectedSets++;
-
-                List<Coordinate> endsComponent1 = new ArrayList<>();
-                for (Coordinate coordinate : connectedSets.get(0)) {
-                    if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
-                        endsComponent1.add(coordinate);
+            } else {
+                List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
+                linesWithTwoOrMoreConnectedSets++;
+                for (Set<Coordinate> connectedSet : connectedSets) {
+                    List<Coordinate> endsComponent = getEnds(connectedSet, graph);
+                    if (endsComponent.size() == 2) {
+                        List<Coordinate> coordinatesComponent = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent.get(0)));
+                        coordinatesComponents.add(coordinatesComponent);
+                    } else {
+                        break;
                     }
                 }
 
-                List<Coordinate> endsComponent2 = new ArrayList<>();
-                for (Coordinate coordinate : connectedSets.get(1)) {
-                    if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
-                        endsComponent2.add(coordinate);
-                    }
-                }
-
-                List<Coordinate> coordinatesComponent1;
-                List<Coordinate> coordinatesComponent2;
-
-                if (endsComponent1.size() == 2) {
-                    coordinatesComponent1 = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent1.get(0)));
-                } else {
+                if (coordinatesComponents.size() != connectedSets.size()) {
+                    twoOrMoreConnectedSetsDiscarded++;
                     continue;
                 }
 
-                if (endsComponent2.size() == 2) {
-                    coordinatesComponent2 = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent2.get(0)));
-                } else {
-                    continue;
-                }
-                added++;
-                List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponent1, coordinatesComponent2);
+                List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
                 LineGeoData line = new LineGeoData(lineId, Country.FR, Country.FR, aggregatedCoordinates);
                 lines.put(lineId, line);
-
-            } else {
-                linesWithMoreThanTwoBranchs++;
             }
         }
 
         LOGGER.info("{} lines read from CSV file in {} ms", lines.size(), stopWatch.getTime());
-        LOGGER.info("{} lines ignored because they have more than 3 connected sets", linesWithMoreThanTwoBranchs);
-        LOGGER.info("{} lines ignored because they have one connected Set but have only one end point", oneConnectedComponentIgnored);
-        LOGGER.info("{} lines have tow connectedSets, {} from them are corrected", linesWithTwoConnectedSets, added);
+        LOGGER.info("{} lines have one Connected set, {} of them were discarded", linesWithOneConnectedSet, oneConnectedSetDiscarded);
+        LOGGER.info("{} lines have two or more Connected sets, {} of them were discarded", linesWithTwoOrMoreConnectedSets, twoOrMoreConnectedSetsDiscarded);
 
         if (graphByLine.size() != lines.size()) {
-            LOGGER.warn("{}/{} lines have been discarded because not composed of a single path",
+            LOGGER.warn("Total discarded lines : {}/{} ",
                     graphByLine.size() - lines.size(), graphByLine.size());
         }
 
         return lines;
     }
 
+    private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, UndirectedGraph<Coordinate, Object> graph) {
+        List<Coordinate> ends = new ArrayList<>();
+        for (Coordinate coordinate : connectedSet) {
+            if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
+                ends.add(coordinate);
+            }
+        }
+        return ends;
+    }
+
+    private static double getBranchLength(List<Coordinate> coordinatesComponent) {
+        return DistanceCalculator.distance(coordinatesComponent.get(0).getLat(), coordinatesComponent.get(0).getLon(),
+                coordinatesComponent.get(coordinatesComponent.size() - 1).getLat(), coordinatesComponent.get(coordinatesComponent.size() - 1).getLon(), "M");
+    }
+
+    private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
+        coordinatesComponents.sort((comp1, comp2) -> (int) (getBranchLength(comp2) - getBranchLength(comp1)));
+        return aggregateCoordinates(coordinatesComponents.get(0), coordinatesComponents.get(1));
+    }
+
     private static List<Coordinate> aggregateCoordinates(List<Coordinate> coordinatesComponent1, List<Coordinate> coordinatesComponent2) {
         List<Coordinate> aggregatedCoordinates;
 
-        double l1 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLat(), coordinatesComponent1.get(0).getLon(),
-                coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLat(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLon(), "M");
-
-        double l2 = DistanceCalculator.distance(coordinatesComponent2.get(0).getLat(), coordinatesComponent2.get(0).getLon(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLat(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLon(), "M");
+        double l1 = getBranchLength(coordinatesComponent1);
+        double l2 = getBranchLength(coordinatesComponent2);
 
         if (100 * l1 / l2 < THRESHOLD) {
             return coordinatesComponent2;

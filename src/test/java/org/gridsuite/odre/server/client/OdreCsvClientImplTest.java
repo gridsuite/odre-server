@@ -39,12 +39,10 @@ public class OdreCsvClientImplTest {
         assertTrue(ids.contains("PREGUL41VAUX"));
         assertTrue(ids.contains("ARDOIL61MOTT5"));
         assertTrue(ids.contains("BEUVRL42GOSNA"));
+        assertTrue(ids.contains("BELIEL31MASQU"));
 
         //discarded aerial lines
         assertFalse(ids.contains("COULOL31ZB"));
-
-        //discarded underground lines
-        assertFalse(ids.contains("BELIEL31MASQU"));
 
         List<SubstationGeoData> substationGeoData = odreCsvClient.getSubstations(ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv").toPath());
         assertEquals(5, substationGeoData.size());
