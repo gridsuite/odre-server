@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.services;
 
-import com.powsybl.iidm.network.Country;
 import org.gridsuite.odre.server.client.OdreClient;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
@@ -18,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -45,18 +43,18 @@ public class OdreServiceImplTest {
     @Before
     public void setUp() {
         List<SubstationGeoData> substationGeoData = new ArrayList<>();
-        substationGeoData.add(new SubstationGeoData("substation1", Country.FR, new Coordinate(1, 2)));
-        substationGeoData.add(new SubstationGeoData("substation2", Country.FR, new Coordinate(3, 4)));
-        substationGeoData.add(new SubstationGeoData("substation3", Country.FR, new Coordinate(5, 6)));
+        substationGeoData.add(new SubstationGeoData("substation1", "FR", new Coordinate(1, 2)));
+        substationGeoData.add(new SubstationGeoData("substation2", "FR", new Coordinate(3, 4)));
+        substationGeoData.add(new SubstationGeoData("substation3", "FR", new Coordinate(5, 6)));
 
         List<LineGeoData> lineGeoData = new ArrayList<>();
-        lineGeoData.add(new LineGeoData("lines1", Country.FR, Country.FR,
+        lineGeoData.add(new LineGeoData("lines1", "FR", "FR",
                 Arrays.asList(new Coordinate(2, 3), new Coordinate(3, 4))));
 
-        lineGeoData.add(new LineGeoData("lines2", Country.FR, Country.BE,
+        lineGeoData.add(new LineGeoData("lines2", "FR", "BE",
                 Arrays.asList(new Coordinate(1, 3), new Coordinate(5, 3))));
 
-        lineGeoData.add(new LineGeoData("lines3", Country.FR, Country.GE,
+        lineGeoData.add(new LineGeoData("lines3", "FR", "GE",
                 Arrays.asList(new Coordinate(4, 3), new Coordinate(2, 3), new Coordinate(7, 4))));
 
         Mockito.when(client.getSubstations())

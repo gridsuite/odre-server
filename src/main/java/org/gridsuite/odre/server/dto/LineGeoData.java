@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.dto;
 
-import com.powsybl.iidm.network.Country;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -22,9 +21,9 @@ public class LineGeoData {
 
     private  String id;
 
-    private Country country1;
+    private String country1;
 
-    private Country country2;
+    private String country2;
 
     private List<Coordinate> coordinates;
 }

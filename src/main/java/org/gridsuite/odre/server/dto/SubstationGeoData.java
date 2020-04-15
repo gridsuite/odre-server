@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.dto;
 
-import com.powsybl.iidm.network.Country;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,7 +18,7 @@ public class SubstationGeoData {
 
     private String id;
 
-    private Country country;
+    private String country;
 
     private Coordinate coordinate;
 }

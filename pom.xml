@@ -56,14 +56,14 @@
         <maven.site.version>3.7.1</maven.site.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
 
+        <commonslang3.version>3.4</commonslang3.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.18.8</lombok.version>
         <mockito.version>2.28.2</mockito.version>
         <springboot.version>2.2.5.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
-
-        <powsyblcore.version>3.0.0</powsyblcore.version>
+        <supercsv.version>2.4.0</supercsv.version>
     </properties>
 
     <dependencyManagement>
@@ -91,6 +91,16 @@
             <version>${springfox.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>${supercsv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commonslang3.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
             <version>${jgrapht.version}</version>
@@ -107,12 +117,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
-            <version>${powsyblcore.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
