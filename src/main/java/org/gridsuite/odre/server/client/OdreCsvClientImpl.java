@@ -7,7 +7,6 @@
 package org.gridsuite.odre.server.client;
 
 import com.google.common.collect.Lists;
-import com.powsybl.iidm.network.Country;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
@@ -82,7 +81,7 @@ public class OdreCsvClientImpl implements OdreClient {
 
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
-                    SubstationGeoData substationGeoData = new SubstationGeoData(id, Country.FR, new Coordinate(lat, lon));
+                    SubstationGeoData substationGeoData = new SubstationGeoData(id, "FR", new Coordinate(lat, lon));
                     substations.put(id, substationGeoData);
                 }
 
@@ -160,7 +159,7 @@ public class OdreCsvClientImpl implements OdreClient {
 
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
-                    LineGeoData line = new LineGeoData(lineId, Country.FR, Country.FR, coordinates);
+                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", coordinates);
                     lines.put(lineId, line);
                 } else {
                     oneConnectedSetDiscarded++;
@@ -184,7 +183,7 @@ public class OdreCsvClientImpl implements OdreClient {
                 }
 
                 List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
-                LineGeoData line = new LineGeoData(lineId, Country.FR, Country.FR, aggregatedCoordinates);
+                LineGeoData line = new LineGeoData(lineId, "FR", "FR", aggregatedCoordinates);
                 lines.put(lineId, line);
             }
         }

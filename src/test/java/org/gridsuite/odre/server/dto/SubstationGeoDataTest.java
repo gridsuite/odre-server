@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.dto;
 
-import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -19,10 +18,10 @@ public class SubstationGeoDataTest {
 
     @Test
     public void test() {
-        SubstationGeoData substationGeoData = new SubstationGeoData("id", Country.FR, new Coordinate(1, 1));
+        SubstationGeoData substationGeoData = new SubstationGeoData("id", "FR", new Coordinate(1, 1));
 
         assertEquals("id", substationGeoData.getId());
-        assertEquals(Country.FR, substationGeoData.getCountry());
+        assertEquals("FR", substationGeoData.getCountry());
         assertEquals(new Coordinate(1, 1), substationGeoData.getCoordinate());
     }
 }
