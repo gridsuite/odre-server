@@ -25,7 +25,7 @@ public class OdreCsvClientImplTest {
     @Test
     public void test() throws FileNotFoundException {
 
-        OdreClient odreCsvClient = new OdreCsvClientImpl();
+        OdreCsvClientImpl odreCsvClient = new OdreCsvClientImpl();
 
         List<LineGeoData> linesGeoData = odreCsvClient.getLines(ResourceUtils.getFile("classpath:lignes-aeriennes-rte-light.csv").toPath(),
                 ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv").toPath());
