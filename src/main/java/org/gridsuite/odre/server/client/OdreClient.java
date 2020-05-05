@@ -9,7 +9,6 @@ package org.gridsuite.odre.server.client;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -19,9 +18,5 @@ public interface OdreClient {
 
     List<SubstationGeoData> getSubstations();
 
-    List<SubstationGeoData> getSubstations(Path path);
-
     List<LineGeoData> getLines();
-
-    List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath);
 }
