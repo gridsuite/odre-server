@@ -64,6 +64,7 @@
         <springboot.version>2.2.5.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <supercsv.version>2.4.0</supercsv.version>
+        <commos.io.version>2.6</commos.io.version>
     </properties>
 
     <dependencyManagement>
@@ -83,7 +84,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${commos.io.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
