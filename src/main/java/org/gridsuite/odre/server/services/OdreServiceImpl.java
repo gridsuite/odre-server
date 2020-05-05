@@ -34,7 +34,7 @@ public class OdreServiceImpl implements OdreService {
     private static final String GEO_DATA_API_VERSION = "v1";
 
     @Autowired
-    @Qualifier("odreOpenDataClientImpl")
+    @Qualifier("odreDownloadClientImpl")
     private OdreClient client;
 
     private RestTemplate geoDataServerRest;

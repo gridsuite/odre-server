@@ -41,16 +41,15 @@ import java.util.*;
  */
 
 @Component
-public class OdreOpenDataClientImpl implements OdreClient {
+public class OdreDownloadClientImpl implements OdreClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OdreOpenDataClientImpl.class);
-
-    private final String openDataBaseUri = "https://opendata.reseaux-energies.fr";
+    private static final Logger LOGGER = LoggerFactory.getLogger(OdreDownloadClientImpl.class);
 
     private RestTemplate openDataRest;
 
     @Autowired
-    public OdreOpenDataClientImpl() {
+    public OdreDownloadClientImpl() {
+        String openDataBaseUri = "https://opendata.reseaux-energies.fr";
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         this.openDataRest = restTemplateBuilder.build();
         this.openDataRest.setUriTemplateHandler(new DefaultUriBuilderFactory(openDataBaseUri));
@@ -85,4 +84,7 @@ public class OdreOpenDataClientImpl implements OdreClient {
         return new ArrayList<>(GeographicDataParser.parseLines(new BufferedReader(new InputStreamReader(aerialLinesByteArrayInputStream)), new BufferedReader(new InputStreamReader(undergroundLinesByteArrayInputStream))).values());
     }
 
+    public void setOpenDataRest(RestTemplate openDataRest) {
+        this.openDataRest = openDataRest;
+    }
 }
