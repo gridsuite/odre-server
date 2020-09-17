@@ -12,8 +12,8 @@ import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.jgrapht.Graphs;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public final class GeographicDataParser {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Map<String, UndirectedGraph<Coordinate, Object>> graphByLine = new HashMap<>();
+        Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
         parseLine(graphByLine, aerialLinesBr, 8, 9, 10, 11);
         parseLine(graphByLine, undergroundLinesBr, 9, 10, 11, 12);
@@ -97,9 +97,9 @@ public final class GeographicDataParser {
         int oneConnectedSetDiscarded = 0;
         int twoOrMoreConnectedSetsDiscarded = 0;
 
-        for (Map.Entry<String, UndirectedGraph<Coordinate, Object>> e : graphByLine.entrySet()) {
+        for (Map.Entry<String, Graph<Coordinate, Object>> e : graphByLine.entrySet()) {
             String lineId = e.getKey();
-            UndirectedGraph<Coordinate, Object> graph = e.getValue();
+            Graph<Coordinate, Object> graph = e.getValue();
             List<Set<Coordinate>> connectedSets = new ConnectivityInspector<>(graph).connectedSets();
             if (connectedSets.size() == 1) {
                 linesWithOneConnectedSet++;
@@ -148,7 +148,7 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, UndirectedGraph<Coordinate, Object>> graphByLine,
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine,
                                   BufferedReader br, int lon1Index, int lat1Index, int lon2Index, int lat2Index) {
         try (CsvListReader csvReader = new CsvListReader(br, CSV_PREFERENCE)) {
             // skip header
@@ -166,7 +166,7 @@ public final class GeographicDataParser {
                 double lat2 = Double.parseDouble(tokens.get(lat2Index));
                 Coordinate coordinate1 = new Coordinate(lat1, lon1);
                 Coordinate coordinate2 = new Coordinate(lat2, lon2);
-                UndirectedGraph<Coordinate, Object> graph = graphByLine.get(lineId);
+                Graph<Coordinate, Object> graph = graphByLine.get(lineId);
                 if (graph == null) {
                     graph = new Pseudograph<>(Object.class);
                     graphByLine.put(lineId, graph);
@@ -184,7 +184,7 @@ public final class GeographicDataParser {
         }
     }
 
-    private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, UndirectedGraph<Coordinate, Object> graph) {
+    private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, Graph<Coordinate, Object> graph) {
         List<Coordinate> ends = new ArrayList<>();
         for (Coordinate coordinate : connectedSet) {
             if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
