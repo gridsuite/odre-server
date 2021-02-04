@@ -25,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.Collections.min;
 import static java.util.Collections.reverse;
@@ -156,28 +158,36 @@ public final class GeographicDataParser {
 
             List<String> tokens;
             while ((tokens = csvReader.read()) != null) {
-                String lineId = tokens.get(1);
-                if (lineId.isEmpty()) {
+                List<String> tokensCopy = tokens;
+                List<String> ids = IntStream.of(1, 16, 19, 22, 25)
+                        .mapToObj(tokensCopy::get)
+                        .filter(s -> s != null && !s.isEmpty())
+                        .collect(Collectors.toList());
+
+                if (ids.isEmpty()) {
                     continue;
                 }
+
                 double lon1 = Double.parseDouble(tokens.get(lon1Index));
                 double lat1 = Double.parseDouble(tokens.get(lat1Index));
                 double lon2 = Double.parseDouble(tokens.get(lon2Index));
                 double lat2 = Double.parseDouble(tokens.get(lat2Index));
                 Coordinate coordinate1 = new Coordinate(lat1, lon1);
                 Coordinate coordinate2 = new Coordinate(lat2, lon2);
-                Graph<Coordinate, Object> graph = graphByLine.get(lineId);
-                if (graph == null) {
-                    graph = new Pseudograph<>(Object.class);
-                    graphByLine.put(lineId, graph);
+                for (String lineId : ids) {
+                    Graph<Coordinate, Object> graph = graphByLine.get(lineId);
+                    if (graph == null) {
+                        graph = new Pseudograph<>(Object.class);
+                        graphByLine.put(lineId, graph);
+                    }
+                    if (!graph.containsVertex(coordinate1)) {
+                        graph.addVertex(coordinate1);
+                    }
+                    if (!graph.containsVertex(coordinate2)) {
+                        graph.addVertex(coordinate2);
+                    }
+                    graph.addEdge(coordinate1, coordinate2);
                 }
-                if (!graph.containsVertex(coordinate1)) {
-                    graph.addVertex(coordinate1);
-                }
-                if (!graph.containsVertex(coordinate2)) {
-                    graph.addVertex(coordinate2);
-                }
-                graph.addEdge(coordinate1, coordinate2);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
