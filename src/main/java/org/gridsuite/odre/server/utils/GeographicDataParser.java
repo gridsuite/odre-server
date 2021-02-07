@@ -220,9 +220,7 @@ public final class GeographicDataParser {
         double l1 = getBranchLength(coordinatesComponent1);
         double l2 = getBranchLength(coordinatesComponent2);
 
-        if (100 * l1 / l2 < THRESHOLD) {
-            return coordinatesComponent2;
-        } else if (100 * l2 / l1 < THRESHOLD) {
+        if (100 * l2 / l1 < THRESHOLD) {
             return coordinatesComponent1;
         }
 
