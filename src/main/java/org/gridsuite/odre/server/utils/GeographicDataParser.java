@@ -196,7 +196,7 @@ public final class GeographicDataParser {
 
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
         return DistanceCalculator.distance(coordinatesComponent.get(0).getLat(), coordinatesComponent.get(0).getLon(),
-                coordinatesComponent.get(coordinatesComponent.size() - 1).getLat(), coordinatesComponent.get(coordinatesComponent.size() - 1).getLon(), "M");
+                coordinatesComponent.get(coordinatesComponent.size() - 1).getLat(), coordinatesComponent.get(coordinatesComponent.size() - 1).getLon());
     }
 
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
@@ -215,20 +215,16 @@ public final class GeographicDataParser {
         }
 
         double d1 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLat(), coordinatesComponent1.get(0).getLon(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLat(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLon(),
-                "M");
+                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLat(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLon());
 
         double d2 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLat(), coordinatesComponent1.get(0).getLon(),
-                coordinatesComponent2.get(0).getLat(), coordinatesComponent2.get(0).getLon(),
-                "M");
+                coordinatesComponent2.get(0).getLat(), coordinatesComponent2.get(0).getLon());
 
         double d3 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLat(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLon(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLat(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLon(),
-                "M");
+                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLat(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLon());
 
         double d4 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLat(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLon(),
-                coordinatesComponent2.get(0).getLat(), coordinatesComponent2.get(0).getLon(),
-                "M");
+                coordinatesComponent2.get(0).getLat(), coordinatesComponent2.get(0).getLon());
 
         List<Double> distances = Arrays.asList(d1, d2, d3, d4);
         double min = min(distances);
