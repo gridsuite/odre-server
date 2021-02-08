@@ -16,10 +16,10 @@ public final class DistanceCalculator {
     }
 
     /**
-     * calculate distance between two geographical points
-     * the calculation assume that the earth is spherical and its radius equal to 6_378_137
-     * @param lat and lon of the two points
-     * @return distance en meter
+     * Compute an approximate distance in meters between two geographical points (latitude, longitude in degrees).
+     * The computation assumes that the earth is spherical and its radius is equal to 6378137 meters.
+     * @param the lat and lon of the two points in degrees
+     * @return the approximate distance in meters
      */
     public static double distance(double lat1, double lon1, double lat2, double lon2) {
         // source : https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf
