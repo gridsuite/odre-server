@@ -48,13 +48,13 @@ public class OdreServiceImplTest {
         substationGeoData.add(new SubstationGeoData("substation3", "FR", new Coordinate(5, 6)));
 
         List<LineGeoData> lineGeoData = new ArrayList<>();
-        lineGeoData.add(new LineGeoData("lines1", "FR", "FR",
+        lineGeoData.add(new LineGeoData("lines1", "FR", "FR", "substation1",
                 Arrays.asList(new Coordinate(2, 3), new Coordinate(3, 4))));
 
-        lineGeoData.add(new LineGeoData("lines2", "FR", "BE",
+        lineGeoData.add(new LineGeoData("lines2", "FR", "BE", "substation1",
                 Arrays.asList(new Coordinate(1, 3), new Coordinate(5, 3))));
 
-        lineGeoData.add(new LineGeoData("lines3", "FR", "GE",
+        lineGeoData.add(new LineGeoData("lines3", "FR", "GE", "substation2",
                 Arrays.asList(new Coordinate(4, 3), new Coordinate(2, 3), new Coordinate(7, 4))));
 
         Mockito.when(client.getSubstations())

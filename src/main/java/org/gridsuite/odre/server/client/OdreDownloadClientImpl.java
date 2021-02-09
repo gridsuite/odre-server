@@ -81,7 +81,13 @@ public class OdreDownloadClientImpl implements OdreClient {
         LOGGER.info("Underground lines were downloaded from the open data server");
         ByteArrayInputStream aerialLinesByteArrayInputStream =  downloadFile("/explore/dataset/lignes-aeriennes-rte/download/");
         LOGGER.info("Aerial lines were downloaded from the open data server");
-        return new ArrayList<>(GeographicDataParser.parseLines(new BufferedReader(new InputStreamReader(aerialLinesByteArrayInputStream)), new BufferedReader(new InputStreamReader(undergroundLinesByteArrayInputStream))).values());
+        ByteArrayInputStream substationInputStream = downloadFile("/explore/dataset/postes-electriques-rte/download/");
+        LOGGER.info("substations were downloaded from the open data server");
+        Map<String, SubstationGeoData> substationsGeoData = GeographicDataParser.parseSubstations(new BufferedReader(new InputStreamReader(substationInputStream)));
+        return new ArrayList<>(
+            GeographicDataParser.parseLines(new BufferedReader(new InputStreamReader(aerialLinesByteArrayInputStream)),
+                                            new BufferedReader(new InputStreamReader(undergroundLinesByteArrayInputStream)),
+                                            substationsGeoData).values());
     }
 
     public void setOpenDataRest(RestTemplate openDataRest) {

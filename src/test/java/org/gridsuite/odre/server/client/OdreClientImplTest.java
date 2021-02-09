@@ -7,8 +7,10 @@
 package org.gridsuite.odre.server.client;
 
 import org.apache.commons.io.IOUtils;
+import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
+import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +25,11 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -85,7 +91,9 @@ public class OdreClientImplTest {
         OdreCsvClientImpl odreCsvClient = new OdreCsvClientImpl();
 
         List<LineGeoData> linesGeoData = odreCsvClient.getLines(ResourceUtils.getFile("classpath:lignes-aeriennes-rte-light.csv").toPath(),
-                ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv").toPath());
+                ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv").toPath(),
+                ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv").toPath()
+            );
 
         List<SubstationGeoData> substationGeoData = odreCsvClient.getSubstations(ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv").toPath());
 
@@ -118,5 +126,44 @@ public class OdreClientImplTest {
 
         assertEquals(49.5000166667, substationGeoData.stream().filter(s -> s.getId().equals("CAZE5")).collect(Collectors.toList()).get(0).getCoordinate().getLat(), 0.001);
         assertEquals(1.25761944444, substationGeoData.stream().filter(s -> s.getId().equals("CAZE5")).collect(Collectors.toList()).get(0).getCoordinate().getLon(), 0.001);
+    }
+
+    @Test
+    public void testFindSubstationStart() {
+        List<Coordinate> refList = List.of(new Coordinate(1, 1), new Coordinate(1, 5), new Coordinate(5, 1), new Coordinate(5, 5));
+        List<Coordinate> reverseRef = new ArrayList<>(refList);
+        Collections.reverse(reverseRef);
+        Map<String, SubstationGeoData> substations = new HashMap<>();
+        substations.put("CAIN", new SubstationGeoData("CAIN", "FR", new Coordinate(0, 1)));
+        substations.put("RAMBO", new SubstationGeoData("RAMBO", "FR", new Coordinate(6, 5)));
+
+        List<Coordinate> tmpList = new ArrayList<>(refList);
+        String res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4RAMBO", tmpList);
+        assertEquals("CAIN", res);
+        assertEquals(refList, tmpList);
+
+        res = GeographicDataParser.findSubstationStart(substations, "RAMBO Z4CAIN ", tmpList);
+        assertEquals("CAIN", res);
+        assertEquals(refList, tmpList);
+
+        Collections.reverse(tmpList);
+        /* RAMBO is now closer than CAIN */
+        res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4RAMBO", tmpList);
+        assertEquals("RAMBO", res);
+        assertEquals(reverseRef, tmpList); // we have reversed tmp list
+
+        // now the fun : missing substations :
+        res = GeographicDataParser.findSubstationStart(substations, "MCCAIN__JOHN", tmpList);
+        assertEquals("", res);
+        assertEquals(reverseRef, tmpList);
+
+        res = GeographicDataParser.findSubstationStart(substations, "JOHN  Z4RAMBO", tmpList);
+        assertEquals("RAMBO", res);
+        assertEquals(reverseRef, tmpList); // we have reversed tmp list
+
+        res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4JOHN", tmpList);
+        assertEquals("CAIN", res);
+        assertEquals(refList, tmpList); // we have reversed tmp list
+
     }
 }

@@ -20,7 +20,7 @@ public class LineGeoDataTest {
 
     @Test
     public void test() {
-        LineGeoData lineGeoData = new LineGeoData("l", "FR", "FR", new ArrayList<>());
+        LineGeoData lineGeoData = new LineGeoData("l", "FR", "FR", "ALAMO", new ArrayList<>());
 
         assertEquals("l", lineGeoData.getId());
         assertEquals("FR", lineGeoData.getCountry1());

@@ -80,7 +80,34 @@ public final class GeographicDataParser {
         return substations;
     }
 
-    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr) {
+    private static double distanceCoordinate(Coordinate coord1, Coordinate coord2) {
+        return DistanceCalculator.distance(coord1.getLat(), coord1.getLon(), coord2.getLat(), coord2.getLon(), "M");
+    }
+
+    public static String findSubstationStart(Map<String, SubstationGeoData> substationGeoData, String lineId, List<Coordinate> coordinates) {
+        String substation1 = lineId.substring(0, 5).trim();
+        String substation2 = lineId.substring(8).trim();
+        SubstationGeoData geo1 = substationGeoData.get(substation1);
+        SubstationGeoData geo2 = substationGeoData.get(substation2);
+
+        if (geo1 == null && geo2 == null) {
+            return "";
+        } else if (geo1 != null && geo2 != null) {
+            return distanceCoordinate(geo1.getCoordinate(), coordinates.get(0))
+                    < distanceCoordinate(geo2.getCoordinate(), coordinates.get(0))
+                    ? substation1 : substation2;
+        } else {
+            double d1 = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0));
+            double d2 = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
+            if (d1 > d2) {
+                Collections.reverse(coordinates);
+            }
+            return geo1 != null ? substation1 : substation2;
+        }
+    }
+
+    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr,
+                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -104,10 +131,10 @@ public final class GeographicDataParser {
             if (connectedSets.size() == 1) {
                 linesWithOneConnectedSet++;
                 List<Coordinate> ends = getEnds(connectedSets.get(0), graph);
-
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
-                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", coordinates);
+                    String substationStart = findSubstationStart(stringSubstationGeoDataMap, lineId, coordinates);
+                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", substationStart, coordinates);
                     lines.put(lineId, line);
                 } else {
                     oneConnectedSetDiscarded++;
@@ -131,7 +158,8 @@ public final class GeographicDataParser {
                 }
 
                 List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
-                LineGeoData line = new LineGeoData(lineId, "FR", "FR", aggregatedCoordinates);
+                String substationStart = findSubstationStart(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
+                LineGeoData line = new LineGeoData(lineId, "FR", "FR", substationStart, aggregatedCoordinates);
                 lines.put(lineId, line);
             }
         }
