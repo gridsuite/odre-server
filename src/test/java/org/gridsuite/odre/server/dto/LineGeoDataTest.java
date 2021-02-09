@@ -25,6 +25,7 @@ public class LineGeoDataTest {
         assertEquals("l", lineGeoData.getId());
         assertEquals("FR", lineGeoData.getCountry1());
         assertEquals("FR", lineGeoData.getCountry2());
+        assertEquals("ALAMO", lineGeoData.getSubstationStart());
         assertTrue(lineGeoData.getCoordinates().isEmpty());
     }
 }
