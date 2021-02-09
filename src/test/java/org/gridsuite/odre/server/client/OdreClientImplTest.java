@@ -101,7 +101,7 @@ public class OdreClientImplTest {
     }
 
     private void checkContent(List<LineGeoData> linesGeoData, List<SubstationGeoData> substationGeoData) {
-        assertEquals(5, linesGeoData.size());
+        assertEquals(7, linesGeoData.size());
 
         List<String> ids = linesGeoData.stream().map(LineGeoData::getId).collect(Collectors.toList());
 
@@ -111,9 +111,11 @@ public class OdreClientImplTest {
         assertTrue(ids.contains("ARDOIL61MOTT5"));
         assertTrue(ids.contains("BEUVRL42GOSNA"));
         assertTrue(ids.contains("BELIEL31MASQU"));
+        assertTrue(ids.contains("ROYANL41ZTHAI"));
+        assertTrue(ids.contains("PLAN6L31RAN.P"));
 
         //discarded aerial lines
-        assertFalse(ids.contains("COULOL31ZB"));
+        assertFalse(ids.contains("COULOL31ZB.CH"));
 
         assertEquals(5, substationGeoData.size());
 
