@@ -83,7 +83,7 @@ public final class GeographicDataParser {
     }
 
     private static double distanceCoordinate(Coordinate coord1, Coordinate coord2) {
-        return DistanceCalculator.distance(coord1.getLat(), coord1.getLon(), coord2.getLat(), coord2.getLon(), "M");
+        return DistanceCalculator.distance(coord1.getLat(), coord1.getLon(), coord2.getLat(), coord2.getLon());
     }
 
     public static String findSubstationStart(Map<String, SubstationGeoData> substationGeoData, String lineId, List<Coordinate> coordinates) {
