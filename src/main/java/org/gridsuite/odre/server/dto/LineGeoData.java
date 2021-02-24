@@ -27,5 +27,7 @@ public class LineGeoData {
 
     private String substationStart;
 
+    private String substationEnd;
+
     private List<Coordinate> coordinates;
 }

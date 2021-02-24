@@ -7,6 +7,7 @@
 package org.gridsuite.odre.server.client;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
@@ -133,39 +134,38 @@ public class OdreClientImplTest {
     @Test
     public void testFindSubstationStart() {
         List<Coordinate> refList = List.of(new Coordinate(1, 1), new Coordinate(1, 5), new Coordinate(5, 1), new Coordinate(5, 5));
-        List<Coordinate> reverseRef = new ArrayList<>(refList);
-        Collections.reverse(reverseRef);
+        List<Coordinate> halfLine = List.of(new Coordinate(1, 1), new Coordinate(1, 3));
         Map<String, SubstationGeoData> substations = new HashMap<>();
         substations.put("CAIN", new SubstationGeoData("CAIN", "FR", new Coordinate(0, 1)));
         substations.put("RAMBO", new SubstationGeoData("RAMBO", "FR", new Coordinate(6, 5)));
 
         List<Coordinate> tmpList = new ArrayList<>(refList);
-        String res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4RAMBO", tmpList);
-        assertEquals("CAIN", res);
+        Pair<String, String> res = GeographicDataParser.substationOrder(substations, "CAIN  Z4RAMBO", tmpList);
+        assertEquals(Pair.of("CAIN", "RAMBO"), res);
         assertEquals(refList, tmpList);
 
-        res = GeographicDataParser.findSubstationStart(substations, "RAMBO Z4CAIN ", tmpList);
-        assertEquals("CAIN", res);
+        res = GeographicDataParser.substationOrder(substations, "CAIN  Z4RAMBO", halfLine);
+        assertEquals(Pair.of("", ""), res);
+        assertEquals(refList, tmpList);
+
+        res = GeographicDataParser.substationOrder(substations, "RAMBO Z4CAIN ", tmpList);
+        assertEquals(Pair.of("CAIN", "RAMBO"), res);
         assertEquals(refList, tmpList);
 
         Collections.reverse(tmpList);
         /* RAMBO is now closer than CAIN */
-        res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4RAMBO", tmpList);
-        assertEquals("RAMBO", res);
-        assertEquals(reverseRef, tmpList); // we have reversed tmp list
+        res = GeographicDataParser.substationOrder(substations, "CAIN  Z4RAMBO", tmpList);
+        assertEquals(Pair.of("RAMBO", "CAIN"), res);
 
         // now the fun : missing substations :
-        res = GeographicDataParser.findSubstationStart(substations, "MCCAIN__JOHN", tmpList);
-        assertEquals("", res);
-        assertEquals(reverseRef, tmpList);
+        res = GeographicDataParser.substationOrder(substations, "MCCAIN__JOHN", tmpList);
+        assertEquals(Pair.of("", ""), res);
 
-        res = GeographicDataParser.findSubstationStart(substations, "JOHN  Z4RAMBO", tmpList);
-        assertEquals("RAMBO", res);
-        assertEquals(reverseRef, tmpList); // we have reversed tmp list
+        res = GeographicDataParser.substationOrder(substations, "JOHN  Z4RAMBO", tmpList);
+        assertEquals(Pair.of("RAMBO", ""), res);
 
-        res = GeographicDataParser.findSubstationStart(substations, "CAIN  Z4JOHN", tmpList);
-        assertEquals("CAIN", res);
-        assertEquals(refList, tmpList); // we have reversed tmp list
+        res = GeographicDataParser.substationOrder(substations, "CAIN  Z4JOHN", tmpList);
+        assertEquals(Pair.of("", "CAIN"), res);
 
     }
 }
