@@ -8,6 +8,7 @@ package org.gridsuite.odre.server.utils;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
@@ -82,7 +83,38 @@ public final class GeographicDataParser {
         return substations;
     }
 
-    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr) {
+    private static double distanceCoordinate(Coordinate coord1, Coordinate coord2) {
+        return DistanceCalculator.distance(coord1.getLat(), coord1.getLon(), coord2.getLat(), coord2.getLon());
+    }
+
+    public static Pair<String, String> substationOrder(Map<String, SubstationGeoData> substationGeoData, String lineId, List<Coordinate> coordinates) {
+        String substation1 = lineId.substring(0, 5).trim();
+        String substation2 = lineId.substring(8).trim();
+        SubstationGeoData geo1 = substationGeoData.get(substation1);
+        SubstationGeoData geo2 = substationGeoData.get(substation2);
+
+        if (geo1 == null && geo2 == null) {
+            LOGGER.warn("can't find any substation for {}", lineId);
+            return Pair.of("", "");
+        } else if (geo1 != null && geo2 != null) {
+            final double sub1pil1 = distanceCoordinate(geo1.getCoordinate(), coordinates.get(0));
+            final double sub2pil1 = distanceCoordinate(geo2.getCoordinate(), coordinates.get(0));
+            final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), coordinates.get(coordinates.size() - 1));
+            final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), coordinates.get(coordinates.size() - 1));
+            if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
+                LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}", lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
+                return Pair.of("", "");
+            }
+            return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
+        } else {
+            boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
+            String substation = geo1 != null ? substation1 : substation2;
+            return Pair.of(isStart ? substation : "", isStart ? "" : substation);
+        }
+    }
+
+    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr,
+                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -106,10 +138,10 @@ public final class GeographicDataParser {
             if (connectedSets.size() == 1) {
                 linesWithOneConnectedSet++;
                 List<Coordinate> ends = getEnds(connectedSets.get(0), graph);
-
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
-                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", coordinates);
+                    Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
+                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), coordinates);
                     lines.put(lineId, line);
                 } else {
                     oneConnectedSetDiscarded++;
@@ -133,7 +165,8 @@ public final class GeographicDataParser {
                 }
 
                 List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
-                LineGeoData line = new LineGeoData(lineId, "FR", "FR", aggregatedCoordinates);
+                Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
+                LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), aggregatedCoordinates);
                 lines.put(lineId, line);
             }
         }

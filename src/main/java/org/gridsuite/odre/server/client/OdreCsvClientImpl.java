@@ -30,7 +30,9 @@ public class OdreCsvClientImpl implements OdreClient {
     @Override
     public List<LineGeoData> getLines() {
         return getLines(Paths.get(System.getenv("HOME") + "/GeoData/lignes-aeriennes-rte.csv"),
-                Paths.get(System.getenv("HOME") + "/GeoData/lignes-souterraines-rte.csv"));
+                Paths.get(System.getenv("HOME") + "/GeoData/lignes-souterraines-rte.csv"),
+                Paths.get(System.getenv("HOME") + "/GeoData/postes-electriques-rte.csv")
+            );
     }
 
     public List<SubstationGeoData> getSubstations(Path path) {
@@ -41,10 +43,13 @@ public class OdreCsvClientImpl implements OdreClient {
         }
     }
 
-    public List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath) {
+    public List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
         try (BufferedReader aerialBufferedReader = Files.newBufferedReader(aerialLinesFilePath, StandardCharsets.UTF_8);
-            BufferedReader undergroundBufferedReader = Files.newBufferedReader(undergroundLinesFilePath, StandardCharsets.UTF_8);) {
-            return new ArrayList<>(GeographicDataParser.parseLines(aerialBufferedReader, undergroundBufferedReader).values());
+            BufferedReader undergroundBufferedReader = Files.newBufferedReader(undergroundLinesFilePath, StandardCharsets.UTF_8);
+            BufferedReader substationBufferedReader = Files.newBufferedReader(substationPath, StandardCharsets.UTF_8);
+            ) {
+            return new ArrayList<>(GeographicDataParser.parseLines(aerialBufferedReader, undergroundBufferedReader,
+                GeographicDataParser.parseSubstations(substationBufferedReader)).values());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
