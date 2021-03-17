@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent-ws</artifactId>
-        <version>3</version>
+        <version>5</version>
         <relativePath/>
     </parent>
 
@@ -46,7 +46,10 @@
     <properties>
         <java.version>11</java.version>
 
-        <gridsuite-dependencies.version>4</gridsuite-dependencies.version>
+        <gridsuite-dependencies.version>5</gridsuite-dependencies.version>
+        <supercsv.version>2.4.0</supercsv.version>
+
+        <jib.to.image>gridsuite/odre-server</jib.to.image>
     </properties>
 
     <build>
@@ -96,6 +99,7 @@
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
+            <version>${supercsv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
