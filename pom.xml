@@ -46,7 +46,8 @@
     <properties>
         <java.version>11</java.version>
 
-        <gridsuite-dependencies.version>4</gridsuite-dependencies.version>
+        <gridsuite-dependencies.version>5</gridsuite-dependencies.version>
+        <supercsv.version>2.4.0</supercsv.version>
     </properties>
 
     <build>
@@ -96,6 +97,7 @@
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
+            <version>${supercsv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
