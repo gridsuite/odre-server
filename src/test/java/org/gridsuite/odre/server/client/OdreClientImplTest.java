@@ -15,8 +15,8 @@ import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -44,12 +44,11 @@ import static org.mockito.BDDMockito.given;
 @RunWith(SpringRunner.class)
 public class OdreClientImplTest {
 
-    @Mock
+    @MockBean
     private RestTemplate openDataRest;
 
     @Before
     public void setUp() throws IOException {
-
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte-light.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv")));
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv")));
