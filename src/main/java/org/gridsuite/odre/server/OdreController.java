@@ -6,11 +6,11 @@
  */
 package org.gridsuite.odre.server;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.gridsuite.odre.server.services.OdreService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/" + OdreController.API_VERSION)
-@Api(value = "Odre")
+@Tag(name = "Odre")
 public class OdreController {
 
     static final String API_VERSION = "v1";
@@ -30,15 +30,15 @@ public class OdreController {
     private OdreService odreService;
 
     @PostMapping("substations")
-    @ApiOperation ("Get Substations coordinates from Open Data Reseaux Energies and send them to geo data service")
-    @ApiResponses (value = {@ApiResponse(code = 200, message = "the list of substation was updated")})
+    @Operation(summary = "Get Substations coordinates from Open Data Reseaux Energies and send them to geo data service")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "the list of substation was updated")})
     public void pushSubstations() {
         odreService.pushSubstations();
     }
 
     @PostMapping("lines")
-    @ApiOperation (value = "Get lines coordinates from Open Data Reseaux Energies and send them to geo data service")
-    @ApiResponses (value = {@ApiResponse(code = 200, message = "the list of lines was updated")})
+    @Operation(summary = "Get lines coordinates from Open Data Reseaux Energies and send them to geo data service")
+    @ApiResponses (value = {@ApiResponse(responseCode = "200", description = "the list of lines was updated")})
     public void pushLines() {
         odreService.pushLines();
     }
