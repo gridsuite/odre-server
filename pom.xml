@@ -48,6 +48,7 @@
 
         <gridsuite-dependencies.version>10</gridsuite-dependencies.version>
         <supercsv.version>2.4.0</supercsv.version>
+        <jib.container.environment>SPRING_PROFILES_ACTIVE=default</jib.container.environment>
     </properties>
 
     <build>
