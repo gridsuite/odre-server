@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent-ws</artifactId>
-        <version>5</version>
+        <version>7</version>
         <relativePath/>
     </parent>
 
@@ -46,9 +46,8 @@
     <properties>
         <java.version>11</java.version>
 
-        <gridsuite-dependencies.version>11</gridsuite-dependencies.version>
+        <gridsuite-dependencies.version>12</gridsuite-dependencies.version>
         <supercsv.version>2.4.0</supercsv.version>
-        <jib.container.environment>SPRING_PROFILES_ACTIVE=default</jib.container.environment>
     </properties>
 
     <build>
@@ -94,6 +93,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-ws-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.supercsv</groupId>
