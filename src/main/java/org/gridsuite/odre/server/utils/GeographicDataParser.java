@@ -120,8 +120,8 @@ public final class GeographicDataParser {
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr, 8, 9, 10, 11);
-        parseLine(graphByLine, undergroundLinesBr, 9, 10, 11, 12);
+        parseLine(graphByLine, aerialLinesBr, 8, 9, 10, 11, new int[] {1, 17, 20, 23, 26});
+        parseLine(graphByLine, undergroundLinesBr, 10, 11, 12, 13, new int[] {2, 17, 20, 23, 26});
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -184,7 +184,7 @@ public final class GeographicDataParser {
     }
 
     private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine,
-                                  BufferedReader br, int lon1Index, int lat1Index, int lon2Index, int lat2Index) {
+                                  BufferedReader br, int lon1Index, int lat1Index, int lon2Index, int lat2Index, int[] idsIndexes) {
         try (CsvListReader csvReader = new CsvListReader(br, CSV_PREFERENCE)) {
             // skip header
             csvReader.read();
@@ -192,7 +192,7 @@ public final class GeographicDataParser {
             List<String> tokens;
             while ((tokens = csvReader.read()) != null) {
                 List<String> tokensCopy = tokens;
-                List<String> ids = IntStream.of(1, 16, 19, 22, 25)
+                List<String> ids = IntStream.of(idsIndexes)
                         .mapToObj(tokensCopy::get)
                         .filter(s -> s != null && !s.isEmpty())
                         .collect(Collectors.toList());
