@@ -54,12 +54,12 @@ public class OdreControllerTest {
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
 
-        MockMultipartFile file = new MockMultipartFile("file", "lignes-aeriennes-rte.csv", "text/csv", substationsBytes);
-        MockMultipartFile substationsFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile file = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
         MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
         MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
-        MockMultipartFile fileWithInvalidName = new MockMultipartFile("file", "lignes-aeriennes.csv", "text/csv", substationsBytes);
-        MockMultipartFile substationsFileWithInvalidName = new MockMultipartFile("files", "lignes-aeriennes.csv", "text/csv", substationsBytes);
+        MockMultipartFile fileWithInvalidName = new MockMultipartFile("file", "postes-electriques.csv", "text/csv", substationsBytes);
+        MockMultipartFile substationsFileWithInvalidName = new MockMultipartFile("files", "postes-electriques.csv", "text/csv", substationsBytes);
         MockMultipartFile aerialLinesFileWithInvalidName = new MockMultipartFile("files", "lignes-aeriennes.csv", "text/csv", aerialLinesBytes);
         MockMultipartFile undergroundLinesFileWithInvalidName = new MockMultipartFile("files", "lignes-souterraines.csv", "text/csv", undergroundLinesBytes);
 
