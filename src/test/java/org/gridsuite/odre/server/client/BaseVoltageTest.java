@@ -9,7 +9,7 @@ public class BaseVoltageTest {
     @Test
     public void test() {
         BaseVoltage baseVoltage = BaseVoltage.VL_90_KV;
-        assertEquals(baseVoltage.getValue(), 90);
+        assertEquals(90, baseVoltage.getValue());
 
         assertEquals(400, BaseVoltage.parse("400KV").getValue());
         assertEquals(225, BaseVoltage.parse("225KV").getValue());

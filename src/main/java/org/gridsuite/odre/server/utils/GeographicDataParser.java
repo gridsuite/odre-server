@@ -12,14 +12,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
-import org.jgrapht.Graphs;
 import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
+import org.springframework.web.multipart.MultipartFile;
+import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.BufferedReader;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Collections.min;
 import static java.util.Collections.reverse;
@@ -47,31 +48,26 @@ public final class GeographicDataParser {
 
     private static final int THRESHOLD = 5;
 
+    public static final String TYPE = "text/csv";
+
     public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-
         int substationCount = 0;
 
-        try (CsvListReader csvReader = new CsvListReader(bufferedReader, CSV_PREFERENCE)) {
-            // skip header
-            csvReader.read();
-
-            List<String> tokens;
-            while ((tokens = csvReader.read()) != null) {
-                String id = tokens.get(0);
-
-                double lon = Double.parseDouble(tokens.get(5));
-                double lat = Double.parseDouble(tokens.get(6));
-
+        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, CSV_PREFERENCE);) {
+            final String[] headers = mapReader.getHeader(true);
+            Map<String, String> row;
+            while ((row = mapReader.read(headers)) != null) {
+                String id = row.get("Code poste");
+                double lon = Double.parseDouble(row.get("Longitude poste (DD)"));
+                double lat = Double.parseDouble(row.get("Latitude poste (DD)"));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
                     SubstationGeoData substationGeoData = new SubstationGeoData(id, "FR", new Coordinate(lat, lon));
                     substations.put(id, substationGeoData);
                 }
-
                 substationCount++;
             }
         } catch (IOException e) {
@@ -79,7 +75,6 @@ public final class GeographicDataParser {
         }
 
         LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
-
         return substations;
     }
 
@@ -119,9 +114,13 @@ public final class GeographicDataParser {
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
+        Map<String, String> idsColumnsName = new HashMap<>(
+                Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
+        Map<String, String> longLatColumnsName = new HashMap<>(
+                Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
 
-        parseLine(graphByLine, aerialLinesBr, 8, 9, 10, 11, new int[] {1, 17, 20, 23, 26});
-        parseLine(graphByLine, undergroundLinesBr, 10, 11, 12, 13, new int[] {2, 17, 20, 23, 26});
+        parseLine(graphByLine, aerialLinesBr, idsColumnsName, longLatColumnsName);
+        parseLine(graphByLine, undergroundLinesBr, idsColumnsName, longLatColumnsName);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -183,28 +182,21 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine,
-                                  BufferedReader br, int lon1Index, int lat1Index, int lon2Index, int lat2Index, int[] idsIndexes) {
-        try (CsvListReader csvReader = new CsvListReader(br, CSV_PREFERENCE)) {
-            // skip header
-            csvReader.read();
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br, Map<String, String> idsColumnsName, Map<String, String> longLatColumnsName) {
 
-            List<String> tokens;
-            while ((tokens = csvReader.read()) != null) {
-                List<String> tokensCopy = tokens;
-                List<String> ids = IntStream.of(idsIndexes)
-                        .mapToObj(tokensCopy::get)
-                        .filter(s -> s != null && !s.isEmpty())
-                        .collect(Collectors.toList());
-
+        try (CsvMapReader mapReader = new CsvMapReader(br, CSV_PREFERENCE);) {
+            final String[] headers = mapReader.getHeader(true);
+            Map<String, String> row;
+            while ((row = mapReader.read(headers)) != null) {
+                List<String> ids = Stream.of(row.get(idsColumnsName.get("id1")), row.get(idsColumnsName.get("id2")), row.get(idsColumnsName.get("id3")), row.get(idsColumnsName.get("id4")), row.get(idsColumnsName.get("id5"))).filter(id -> id != null && !id.isEmpty()).collect(Collectors.toList());
                 if (ids.isEmpty()) {
                     continue;
                 }
 
-                double lon1 = Double.parseDouble(tokens.get(lon1Index));
-                double lat1 = Double.parseDouble(tokens.get(lat1Index));
-                double lon2 = Double.parseDouble(tokens.get(lon2Index));
-                double lat2 = Double.parseDouble(tokens.get(lat2Index));
+                double lon1 = Double.parseDouble(row.get(longLatColumnsName.get("long1")));
+                double lat1 = Double.parseDouble(row.get(longLatColumnsName.get("lat1")));
+                double lon2 = Double.parseDouble(row.get(longLatColumnsName.get("long2")));
+                double lat2 = Double.parseDouble(row.get(longLatColumnsName.get("lat2")));
                 Coordinate coordinate1 = new Coordinate(lat1, lon1);
                 Coordinate coordinate2 = new Coordinate(lat2, lon2);
                 for (String lineId : ids) {
@@ -292,4 +284,7 @@ public final class GeographicDataParser {
         return aggregatedCoordinates;
     }
 
+    public static boolean hasCSVFormat(MultipartFile file) {
+        return TYPE.equals(file.getContentType());
+    }
 }
