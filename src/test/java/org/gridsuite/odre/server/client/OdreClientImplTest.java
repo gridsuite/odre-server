@@ -21,6 +21,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
@@ -86,8 +87,13 @@ public class OdreClientImplTest {
     }
 
     @Test
-    public void testCSVClientImpl() throws FileNotFoundException {
-
+    public void testCSVClientImpl() throws IOException {
+        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
+        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
+        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
+        MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
+        MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
         OdreCsvClientImpl odreCsvClient = new OdreCsvClientImpl();
 
         List<LineGeoData> linesGeoData = odreCsvClient.getLines(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv").toPath(),
@@ -98,6 +104,12 @@ public class OdreClientImplTest {
         List<SubstationGeoData> substationGeoData = odreCsvClient.getSubstations(ResourceUtils.getFile("classpath:postes-electriques-rte.csv").toPath());
 
         checkContent(linesGeoData, substationGeoData);
+
+        List<LineGeoData> linesGeoDataFromMultipart = odreCsvClient.getLinesFromCsv(new HashMap<>(Map.of("postes-electriques-rte.csv", substationsFile, "lignes-aeriennes-rte.csv", aerialLinesFile, "lignes-souterraines-rte.csv", undergroundLinesFile)));
+
+        List<SubstationGeoData> substationGeoDataFromMultipart = odreCsvClient.getSubstationsFromCsv(substationsFile);
+
+        checkContent(linesGeoDataFromMultipart, substationGeoDataFromMultipart);
     }
 
     private void checkContent(List<LineGeoData> linesGeoData, List<SubstationGeoData> substationGeoData) {
