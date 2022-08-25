@@ -23,7 +23,7 @@ public enum FileNameEnum {
         return this.value;
     }
 
-    public static boolean checkIfValueExist(String value) {
+    public static boolean checkIfValueExists(String value) {
         for (FileNameEnum name : values()) {
             if (name.getValue().equalsIgnoreCase(value)) {
                 return true;
