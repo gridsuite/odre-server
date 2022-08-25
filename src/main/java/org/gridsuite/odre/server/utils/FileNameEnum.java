@@ -24,13 +24,11 @@ public enum FileNameEnum {
     }
 
     public static boolean checkIfValueExist(String value) {
-        boolean result = false;
         for (FileNameEnum name : values()) {
             if (name.getValue().equalsIgnoreCase(value)) {
-                result = true;
-                break;
+                return true;
             }
         }
-        return result;
+        return false;
     }
 }

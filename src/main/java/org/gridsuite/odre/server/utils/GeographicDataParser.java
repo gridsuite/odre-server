@@ -50,6 +50,11 @@ public final class GeographicDataParser {
 
     public static final String TYPE = "text/csv";
 
+    private static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
+            Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
+    private static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
+            Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
+
     public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
@@ -114,13 +119,9 @@ public final class GeographicDataParser {
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
-        Map<String, String> idsColumnsName = new HashMap<>(
-                Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
-        Map<String, String> longLatColumnsName = new HashMap<>(
-                Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
 
-        parseLine(graphByLine, aerialLinesBr, idsColumnsName, longLatColumnsName);
-        parseLine(graphByLine, undergroundLinesBr, idsColumnsName, longLatColumnsName);
+        parseLine(graphByLine, aerialLinesBr, IDS_COLUMNS_NAME, LONG_LAT_COLUMNS_NAME);
+        parseLine(graphByLine, undergroundLinesBr, IDS_COLUMNS_NAME, LONG_LAT_COLUMNS_NAME);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 

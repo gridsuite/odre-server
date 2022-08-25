@@ -8,6 +8,7 @@ package org.gridsuite.odre.server;
 
 import org.apache.commons.io.IOUtils;
 import org.gridsuite.odre.server.services.OdreService;
+import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -55,6 +59,7 @@ public class OdreControllerTest {
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
 
         MockMultipartFile file = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile file2 = new MockMultipartFile("file", "lignes-aeriennes-rte.csv", "text/csv", substationsBytes);
         MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
         MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
         MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
@@ -77,11 +82,38 @@ public class OdreControllerTest {
         mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile))
                 .andExpect(status().isOk());
 
-        // test with invalid file name
+        // test substations with invalid file name
         mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations/upload").file(fileWithInvalidName))
                 .andExpect(status().isBadRequest());
-        // test with invalid file name
+        // test substations with no file
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations/upload"))
+                .andExpect(status().isBadRequest());
+        // test lines with no files
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload"))
+                .andExpect(status().isBadRequest());
+        // test lines with invalid file name
         mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFileWithInvalidName).file(aerialLinesFileWithInvalidName).file(undergroundLinesFileWithInvalidName))
                 .andExpect(status().isBadRequest());
+        // test lines with only 2  well named files
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile))
+                .andExpect(status().isBadRequest());
+        // test lines with 4 well named files
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile).file(undergroundLinesFile))
+                .andExpect(status().isBadRequest());
+        // test lines with one invalid file name and two well named files
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFileWithInvalidName).file(undergroundLinesFile))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void hasCSVFormatTest() throws IOException {
+        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
+
+        MockMultipartFile file = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile invalidTypeFile = new MockMultipartFile("file", "postes-electriques-rte.pdf", "text/pdf", substationsBytes);
+
+        assertTrue(GeographicDataParser.hasCSVFormat(file));
+        assertFalse(GeographicDataParser.hasCSVFormat(invalidTypeFile));
     }
 }
+

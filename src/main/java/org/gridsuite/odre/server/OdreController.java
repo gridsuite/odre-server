@@ -67,7 +67,7 @@ public class OdreController {
         try {
             Map<String, MultipartFile> fileMap = new HashMap<>();
             //check if all files are present
-            if (Arrays.stream(files).distinct().filter(file -> GeographicDataParser.hasCSVFormat(file) && FileNameEnum.checkIfValueExist(file.getOriginalFilename())).count() < 3) {
+            if (Arrays.stream(files).filter(file -> GeographicDataParser.hasCSVFormat(file) && FileNameEnum.checkIfValueExist(file.getOriginalFilename())).count() != 3) {
                 response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations with correct names"), HttpStatus.BAD_REQUEST);
             } else {
                 Arrays.stream(files).forEach(file -> fileMap.put(file.getOriginalFilename(), file));
