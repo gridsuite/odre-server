@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author bendaamerahm <ahmed.bendaamer@rte-france.com>
+ * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
 @Getter
 @Setter

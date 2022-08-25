@@ -8,11 +8,14 @@ package org.gridsuite.odre.server.client;
 
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
+import org.gridsuite.odre.server.utils.FileNameEnum;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @Component
-public class OdreCsvClientImpl implements OdreClient {
+public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
     @Override
     public List<SubstationGeoData> getSubstations() {
         return getSubstations(Paths.get(System.getenv("HOME") + "/GeoData/postes-electriques-rte.csv"));
@@ -33,6 +36,28 @@ public class OdreCsvClientImpl implements OdreClient {
                 Paths.get(System.getenv("HOME") + "/GeoData/lignes-souterraines-rte.csv"),
                 Paths.get(System.getenv("HOME") + "/GeoData/postes-electriques-rte.csv")
             );
+    }
+
+    @Override
+    public List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file) {
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            return new ArrayList<>(GeographicDataParser.parseSubstations(fileReader).values());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public List<LineGeoData> getLinesFromCsv(Map<String, MultipartFile> files) {
+        try (BufferedReader aerialBufferedReader = new BufferedReader(new InputStreamReader(files.get(FileNameEnum.AERIAL_LINES.getValue()).getInputStream(), StandardCharsets.UTF_8));
+             BufferedReader undergroundBufferedReader = new BufferedReader(new InputStreamReader(files.get(FileNameEnum.UNDERGROUND_LINES.getValue()).getInputStream(), StandardCharsets.UTF_8));
+             BufferedReader substationBufferedReader = new BufferedReader(new InputStreamReader(files.get(FileNameEnum.SUBSTATIONS.getValue()).getInputStream(), StandardCharsets.UTF_8));
+        ) {
+            return new ArrayList<>(GeographicDataParser.parseLines(aerialBufferedReader, undergroundBufferedReader,
+                    GeographicDataParser.parseSubstations(substationBufferedReader)).values());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public List<SubstationGeoData> getSubstations(Path path) {

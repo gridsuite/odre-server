@@ -7,7 +7,7 @@
 package org.gridsuite.odre.server.utils;
 
 /**
- * @author bendaamerahm <ahmed.bendaamer@rte-france.com>
+ * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
 public enum FileNameEnum {
 
