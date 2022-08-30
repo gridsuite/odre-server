@@ -9,7 +9,6 @@ package org.gridsuite.odre.server;
 import org.apache.commons.io.IOUtils;
 import org.gridsuite.odre.server.services.OdreService;
 import org.gridsuite.odre.server.utils.FileValidator;
-import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

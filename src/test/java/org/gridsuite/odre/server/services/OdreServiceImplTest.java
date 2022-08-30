@@ -7,7 +7,6 @@
 package org.gridsuite.odre.server.services;
 
 import org.gridsuite.odre.server.client.OdreClient;
-import org.gridsuite.odre.server.client.OdreCsvClient;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
