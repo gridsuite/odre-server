@@ -10,11 +10,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.odre.server.dto.FileUploadResponse;
 import org.gridsuite.odre.server.services.OdreService;
-import org.gridsuite.odre.server.utils.FileNameEnum;
-import org.gridsuite.odre.server.utils.GeographicDataParser;
+import org.gridsuite.odre.server.utils.FileValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 
 /**
@@ -60,44 +58,38 @@ public class OdreController {
     @Operation(summary = "Get lines coordinates from csv files and send them to geo data service")
     @ApiResponses (value = {@ApiResponse(responseCode = "200", description = "the list of lines was updated"),
             @ApiResponse(responseCode = "500", description = "fail to upload file(s)"),
-            @ApiResponse(responseCode = "400", description = "csv file with invalid name or no file attached"),
+            @ApiResponse(responseCode = "400", description = "invalid csv file or missing file(s)"),
     })
     public ResponseEntity<FileUploadResponse> pushLinesFromCsv(@RequestParam("files") MultipartFile[] files) {
-        ResponseEntity<FileUploadResponse> response;
+        //check if all files are present
         try {
-            Map<String, MultipartFile> fileMap = new HashMap<>();
-            //check if all files are present
-            if (Arrays.stream(files).filter(file -> GeographicDataParser.hasCSVFormat(file) && FileNameEnum.checkIfValueExists(file.getOriginalFilename())).count() != 3) {
-                response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations with correct names"), HttpStatus.BAD_REQUEST);
+            List<MultipartFile> fileList = new ArrayList<>();
+            if (Arrays.stream(files).filter(file -> FileValidator.hasCSVFormat(file)).count() != 3) {
+                return new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations !"), HttpStatus.BAD_REQUEST);
             } else {
-                Arrays.stream(files).forEach(file -> fileMap.put(file.getOriginalFilename(), file));
-                odreService.pushLinesFromCsv(fileMap);
-                response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.OK.value(), "list of lines updated successfully"), HttpStatus.OK);
+                Arrays.stream(files).forEach(file -> fileList.add(file));
+                return new ResponseEntity<>(odreService.pushLinesFromCsv(fileList), HttpStatus.OK);
             }
         } catch (Exception e) {
-            response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Fail to upload files! " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new FileUploadResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Fail to upload files ! " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response;
     }
 
     @PostMapping(value = "/substations/upload", consumes = "multipart/form-data")
     @Operation(summary = "Get Substations coordinates from Given CSV file and send them to geo data service")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "the list of substation was updated"),
             @ApiResponse(responseCode = "500", description = "fail to upload file"),
-            @ApiResponse(responseCode = "400", description = "csv file with invalid name or no file attached"),
+            @ApiResponse(responseCode = "400", description = "invalid csv file"),
     })
     public ResponseEntity<FileUploadResponse>  pushSubstationsFromCsv(@RequestParam("file") MultipartFile file) {
-        ResponseEntity<FileUploadResponse> response;
-        if (GeographicDataParser.hasCSVFormat(file) && StringUtils.equals(FileNameEnum.SUBSTATIONS.getValue(), file.getOriginalFilename())) {
-            try {
-                odreService.pushSubstationsFromCsv(file);
-                response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.OK.value(), "List of substation updated successfully"), HttpStatus.OK);
-            } catch (Exception e) {
-                response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Fail to upload file! " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            if (FileValidator.hasCSVFormat(file)) {
+                return new ResponseEntity<>(odreService.pushSubstationsFromCsv(file), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload a csv file !"), HttpStatus.BAD_REQUEST);
             }
-        } else {
-            response = new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload a csv file with correct name"), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new FileUploadResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Fail to upload file ! " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response;
     }
 }

@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.io.CsvMapReader;
-import org.supercsv.prefs.CsvPreference;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,17 +42,7 @@ public final class GeographicDataParser {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
-
-    private static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
-
     private static final int THRESHOLD = 5;
-
-    public static final String TYPE = "text/csv";
-
-    private static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
-            Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
-    private static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
-            Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
 
     public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
@@ -61,7 +50,7 @@ public final class GeographicDataParser {
         stopWatch.start();
         int substationCount = 0;
 
-        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, CSV_PREFERENCE);) {
+        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE);) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
@@ -78,7 +67,6 @@ public final class GeographicDataParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
         LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
         return substations;
     }
@@ -120,8 +108,8 @@ public final class GeographicDataParser {
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr, IDS_COLUMNS_NAME, LONG_LAT_COLUMNS_NAME);
-        parseLine(graphByLine, undergroundLinesBr, IDS_COLUMNS_NAME, LONG_LAT_COLUMNS_NAME);
+        parseLine(graphByLine, aerialLinesBr, FileValidator.IDS_COLUMNS_NAME, FileValidator.LONG_LAT_COLUMNS_NAME);
+        parseLine(graphByLine, undergroundLinesBr, FileValidator.IDS_COLUMNS_NAME, FileValidator.LONG_LAT_COLUMNS_NAME);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -185,7 +173,7 @@ public final class GeographicDataParser {
 
     private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br, Map<String, String> idsColumnsName, Map<String, String> longLatColumnsName) {
 
-        try (CsvMapReader mapReader = new CsvMapReader(br, CSV_PREFERENCE);) {
+        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE);) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
@@ -283,9 +271,5 @@ public final class GeographicDataParser {
             aggregatedCoordinates.addAll(coordinatesComponent2);
         }
         return aggregatedCoordinates;
-    }
-
-    public static boolean hasCSVFormat(MultipartFile file) {
-        return TYPE.equals(file.getContentType());
     }
 }

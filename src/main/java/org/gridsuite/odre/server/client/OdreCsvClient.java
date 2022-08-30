@@ -11,7 +11,6 @@ import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -20,5 +19,5 @@ public interface OdreCsvClient {
 
     List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file);
 
-    List<LineGeoData> getLinesFromCsv(Map<String, MultipartFile> files);
+    List<LineGeoData> getLinesFromCsv(List<MultipartFile> files);
 }

@@ -105,7 +105,7 @@ public class OdreClientImplTest {
 
         checkContent(linesGeoData, substationGeoData);
 
-        List<LineGeoData> linesGeoDataFromMultipart = odreCsvClient.getLinesFromCsv(new HashMap<>(Map.of("postes-electriques-rte.csv", substationsFile, "lignes-aeriennes-rte.csv", aerialLinesFile, "lignes-souterraines-rte.csv", undergroundLinesFile)));
+        List<LineGeoData> linesGeoDataFromMultipart = odreCsvClient.getLinesFromCsv(List.of(substationsFile, aerialLinesFile, undergroundLinesFile));
 
         List<SubstationGeoData> substationGeoDataFromMultipart = odreCsvClient.getSubstationsFromCsv(substationsFile);
 

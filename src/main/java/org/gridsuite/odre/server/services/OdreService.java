@@ -6,9 +6,10 @@
  */
 package org.gridsuite.odre.server.services;
 
+import org.gridsuite.odre.server.dto.FileUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
@@ -19,7 +20,7 @@ public interface OdreService {
 
     void pushLines();
 
-    void pushSubstationsFromCsv(MultipartFile file);
+    FileUploadResponse pushSubstationsFromCsv(MultipartFile file);
 
-    void pushLinesFromCsv(Map<String, MultipartFile> files);
+    FileUploadResponse pushLinesFromCsv(List<MultipartFile> files);
 }

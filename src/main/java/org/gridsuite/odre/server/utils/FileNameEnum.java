@@ -11,7 +11,7 @@ package org.gridsuite.odre.server.utils;
  */
 public enum FileNameEnum {
 
-    SUBSTATIONS("postes-electriques-rte.csv"), AERIAL_LINES("lignes-aeriennes-rte.csv"), UNDERGROUND_LINES("lignes-souterraines-rte.csv");
+    SUBSTATIONS("postes-electriques"), AERIAL_LINES("lignes-aeriennes"), UNDERGROUND_LINES("lignes-souterraines");
 
     private String value;
 
@@ -21,14 +21,5 @@ public enum FileNameEnum {
 
     public String getValue() {
         return this.value;
-    }
-
-    public static boolean checkIfValueExists(String value) {
-        for (FileNameEnum name : values()) {
-            if (name.getValue().equalsIgnoreCase(value)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

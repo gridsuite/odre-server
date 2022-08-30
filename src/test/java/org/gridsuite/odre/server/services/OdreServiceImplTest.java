@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.services;
 
-import org.apache.commons.io.IOUtils;
 import org.gridsuite.odre.server.client.OdreClient;
 import org.gridsuite.odre.server.client.OdreCsvClient;
 import org.gridsuite.odre.server.dto.Coordinate;
@@ -19,12 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,9 +34,6 @@ public class OdreServiceImplTest {
 
     @Mock
     private OdreClient client;
-
-    @Mock
-    private OdreCsvClient csvClient;
 
     @Mock
     private RestTemplate geoDataServerRest;
@@ -72,19 +67,9 @@ public class OdreServiceImplTest {
 
     @Test
     public void test() throws Exception {
-        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
-        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
-        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
-        MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
-        MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
-        MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
-
         assertEquals(3, client.getSubstations().size());
         assertEquals(3, client.getLines().size());
-
         odreService.pushLines();
         odreService.pushSubstations();
-        odreService.pushSubstationsFromCsv(substationsFile);
-        odreService.pushLinesFromCsv(new HashMap<>(Map.of("postes-electriques-rte.csv", substationsFile, "lignes-aeriennes-rte.csv", aerialLinesFile, "lignes-souterraines-rte.csv", undergroundLinesFile)));
     }
 }
