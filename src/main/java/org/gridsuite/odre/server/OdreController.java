@@ -15,6 +15,7 @@ import org.gridsuite.odre.server.services.OdreService;
 import org.gridsuite.odre.server.utils.FileValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class OdreController {
         odreService.pushLines();
     }
 
-    @PostMapping(value = "/lines/upload", consumes = "multipart/form-data")
+    @PostMapping(value = "/lines/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get lines coordinates from csv files and send them to geo data service")
     @ApiResponses (value = {@ApiResponse(responseCode = "200", description = "the list of lines was updated"),
             @ApiResponse(responseCode = "500", description = "fail to upload file(s)"),
@@ -75,7 +76,7 @@ public class OdreController {
         }
     }
 
-    @PostMapping(value = "/substations/upload", consumes = "multipart/form-data")
+    @PostMapping(value = "/substations/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get Substations coordinates from Given CSV file and send them to geo data service")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "the list of substation was updated"),
             @ApiResponse(responseCode = "500", description = "fail to upload file"),

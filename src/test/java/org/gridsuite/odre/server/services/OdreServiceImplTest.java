@@ -82,6 +82,8 @@ public class OdreServiceImplTest {
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
+        byte[] invalideSubstationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte-invalide.csv")));
+        MockMultipartFile invalidFile = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", invalideSubstationsBytes);
 
         MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
         MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
@@ -93,6 +95,10 @@ public class OdreServiceImplTest {
 
         assertEquals(10, odreCsvClientImpl.getSubstationsFromCsv(file).size());
         assertEquals(6, odreCsvClientImpl.getLinesFromCsv(List.of(substationsFile, aerialLinesFile, undergroundLinesFile)).size());
+
+        // test with invalid file
+        assertEquals(0, odreCsvClientImpl.getLinesFromCsv(List.of(invalidFile, aerialLinesFile, undergroundLinesFile)).size());
+        assertEquals(0, odreCsvClientImpl.getSubstationsFromCsv(invalidFile).size());
 
         odreService.pushLines();
         odreService.pushSubstations();
