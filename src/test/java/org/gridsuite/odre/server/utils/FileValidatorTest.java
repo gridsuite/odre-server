@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class FileValidatorTest {
 
     @Test
-    public void whenValideSubstationFile() throws IOException {
+    public void whenCallingValidate() throws IOException {
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
