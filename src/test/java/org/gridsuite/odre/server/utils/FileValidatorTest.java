@@ -51,19 +51,19 @@ public class FileValidatorTest {
         result.putIfAbsent(FileNameEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(undergroundLinesFile.getInputStream(), StandardCharsets.UTF_8)));
 
         // test substations file validator with valid file
-        Assertions.assertThat(FileValidator.getInstance().validateSubstations(file)).isEqualTo(true);
+        Assertions.assertThat(FileValidator.getInstance().validateSubstations(file)).isTrue();
         // test substations file validator with invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateSubstations(invalidFile)).isEqualTo(false);
+        Assertions.assertThat(FileValidator.getInstance().validateSubstations(invalidFile)).isFalse();
         // test lines file validator with valid files
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile)).size()).isEqualTo(3);
+        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile))).hasSize(3);
         // test lines file validator with 1 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile)).size()).isEqualTo(2);
+        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile))).hasSize(2);
         // test lines file validator with 2 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile)).size()).isEqualTo(1);
+        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile))).hasSize(1);
         // test lines file validator with 3 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile)).size()).isEqualTo(0);
+        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile))).isEmpty();
         // test lines file validator with 4 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile)).size()).isEqualTo(0);
+        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile))).isEmpty();
     }
 
     @Test

@@ -24,28 +24,32 @@ import java.util.*;
  */
 public final class FileValidator {
 
-    private static FileValidator INSTANCE;
+    private static FileValidator instance;
 
     private FileValidator() {
 
     }
 
     public static FileValidator getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new FileValidator();
+        if (instance == null) {
+            instance = new FileValidator();
         }
-        return INSTANCE;
+        return instance;
     }
 
     public static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
     public static final String TYPE = "text/csv";
     protected static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
             Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
+    public static final String LONGITUDE_DEBUT_SEGMENT_DD = "Longitude DEBUT segment (DD)";
+    public static final String LATITUDE_DEBUT_SEGMENT_DD = "Latitude DEBUT segment (DD)";
+    public static final String LONGITUDE_ARRIVEE_SEGMENT_DD = "Longitude ARRIVEE segment (DD)";
+    public static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude ARRIVEE segment (DD)";
     protected static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
-            Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
+            Map.of("long1", LONGITUDE_DEBUT_SEGMENT_DD, "lat1", LATITUDE_DEBUT_SEGMENT_DD, "long2", LONGITUDE_ARRIVEE_SEGMENT_DD, "lat2", LATITUDE_ARRIVEE_SEGMENT_DD));
     protected static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList("Code poste", "Longitude poste (DD)", "Latitude poste (DD)");
-    protected static final List<String> ARIAL_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
-    protected static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
+    protected static final List<String> ARIAL_LINES_EXPECTED_HEADERS = Arrays.asList(LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
+    protected static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList(LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
 
     public static boolean validateSubstations(MultipartFile file) {
         StopWatch stopWatch = new StopWatch();
