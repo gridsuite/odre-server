@@ -30,13 +30,13 @@ public final class FileValidator {
 
     public static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
     public static final String TYPE = "text/csv";
-    public static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
+    protected static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
             Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
-    public static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
+    protected static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
             Map.of("long1", "Longitude début segment (DD)", "lat1", "Latitude début segment (DD)", "long2", "Longitude arrivée segment (DD)", "lat2", "Latitude arrivée segment (DD)"));
-    public static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList("Code poste", "Longitude poste (DD)", "Latitude poste (DD)");
-    public static final List<String> ARIAL_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
-    public static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
+    protected static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList("Code poste", "Longitude poste (DD)", "Latitude poste (DD)");
+    protected static final List<String> ARIAL_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
+    protected static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList("Longitude début segment (DD)", "Latitude début segment (DD)", "Longitude arrivée segment (DD)", "Latitude arrivée segment (DD)");
 
     public static boolean validateSubstations(MultipartFile file) {
         StopWatch stopWatch = new StopWatch();

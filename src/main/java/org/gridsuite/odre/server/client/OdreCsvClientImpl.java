@@ -45,7 +45,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
             if (FileValidator.validateSubstations(file)) {
                 return new ArrayList<>(GeographicDataParser.parseSubstations(fileReader).values());
             } else {
-                return null;
+                return new ArrayList<>();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -59,7 +59,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
             return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileNameEnum.AERIAL_LINES.getValue()), mapValidation.get(FileNameEnum.UNDERGROUND_LINES.getValue()),
                     GeographicDataParser.parseSubstations(mapValidation.get(FileNameEnum.SUBSTATIONS.getValue()))).values());
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 

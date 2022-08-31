@@ -68,6 +68,7 @@ public class OdreServiceImplTest {
     public void test() throws Exception {
         assertEquals(3, client.getSubstations().size());
         assertEquals(3, client.getLines().size());
+
         odreService.pushLines();
         odreService.pushSubstations();
     }

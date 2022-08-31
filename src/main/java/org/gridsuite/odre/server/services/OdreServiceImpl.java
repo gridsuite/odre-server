@@ -91,15 +91,15 @@ public class OdreServiceImpl implements OdreService {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(geoDataServerBaseUri + "/" + GEO_DATA_API_VERSION + "/substations");
         List<SubstationGeoData> substationsGeoData = csvClient.getSubstationsFromCsv(file);
-        if (substationsGeoData == null) {
-            return new FileUploadResponse(400, "File validation failed!");
+        if (substationsGeoData.isEmpty()) {
+            return new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "File validation failed!");
         }
         HttpEntity<List<SubstationGeoData>> requestEntity = new HttpEntity<>(substationsGeoData, requestHeaders);
-        ResponseEntity<Void> response = geoDataServerRest.exchange(uriBuilder.toUriString(),
+        geoDataServerRest.exchange(uriBuilder.toUriString(),
                 HttpMethod.POST,
                 requestEntity,
                 Void.class);
-        return new FileUploadResponse(response.getStatusCodeValue(), "List of substations updated successfully");
+        return new FileUploadResponse(HttpStatus.OK.value(), "List of substations updated successfully");
     }
 
     @Override
@@ -108,14 +108,14 @@ public class OdreServiceImpl implements OdreService {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(geoDataServerBaseUri + "/" + GEO_DATA_API_VERSION + "/lines");
         List<LineGeoData> linesFromCsv = csvClient.getLinesFromCsv(files);
-        if (linesFromCsv == null) {
+        if (linesFromCsv.isEmpty()) {
             return new FileUploadResponse(400, "File(s) validation failed!");
         }
         HttpEntity<List<LineGeoData>> requestEntity = new HttpEntity<>(linesFromCsv, requestHeaders);
-        ResponseEntity<Void> response = geoDataServerRest.exchange(uriBuilder.toUriString(),
+        geoDataServerRest.exchange(uriBuilder.toUriString(),
                 HttpMethod.POST,
                 requestEntity,
                 Void.class);
-        return new FileUploadResponse(response.getStatusCodeValue(), "List of lines updated successfully");
+        return new FileUploadResponse(HttpStatus.OK.value(), "List of lines updated successfully");
     }
 }

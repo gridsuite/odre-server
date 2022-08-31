@@ -64,10 +64,10 @@ public class OdreController {
         //check if all files are present
         try {
             List<MultipartFile> fileList = new ArrayList<>();
-            if (Arrays.stream(files).filter(file -> FileValidator.hasCSVFormat(file)).count() != 3) {
+            if (Arrays.stream(files).filter(FileValidator::hasCSVFormat).count() != 3) {
                 return new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations !"), HttpStatus.BAD_REQUEST);
             } else {
-                Arrays.stream(files).forEach(file -> fileList.add(file));
+                Arrays.stream(files).forEach(fileList::add);
                 return new ResponseEntity<>(odreService.pushLinesFromCsv(fileList), HttpStatus.OK);
             }
         } catch (Exception e) {
