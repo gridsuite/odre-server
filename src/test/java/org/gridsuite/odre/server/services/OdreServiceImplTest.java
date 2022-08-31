@@ -70,10 +70,6 @@ public class OdreServiceImplTest {
         lineGeoData.add(new LineGeoData("lines3", "FR", "GE", "substation2", "substation2",
                 Arrays.asList(new Coordinate(4, 3), new Coordinate(2, 3), new Coordinate(7, 4))));
 
-        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
-
-        MockMultipartFile file = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
-
         Mockito.when(client.getSubstations())
                 .thenReturn(substationGeoData);
 
