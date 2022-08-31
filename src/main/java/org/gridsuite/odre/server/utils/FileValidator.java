@@ -24,8 +24,17 @@ import java.util.*;
  */
 public final class FileValidator {
 
+    private static FileValidator INSTANCE;
+
     private FileValidator() {
 
+    }
+
+    public static FileValidator getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new FileValidator();
+        }
+        return INSTANCE;
     }
 
     public static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
@@ -67,9 +76,9 @@ public final class FileValidator {
                 if (typeOuvrage == null && new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
                     mapResult.putIfAbsent(FileNameEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 } else if (StringUtils.equals(typeOuvrage, "AERIEN") && new HashSet<>(Arrays.asList(headers)).containsAll(ARIAL_LINES_EXPECTED_HEADERS)) {
-                    mapResult.put(FileNameEnum.AERIAL_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+                    mapResult.putIfAbsent(FileNameEnum.AERIAL_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 } else if (StringUtils.equals(typeOuvrage, "SOUTERRAIN") && new HashSet<>(Arrays.asList(headers)).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS)) {
-                    mapResult.put(FileNameEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+                    mapResult.putIfAbsent(FileNameEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
