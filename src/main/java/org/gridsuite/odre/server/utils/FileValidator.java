@@ -7,7 +7,6 @@
 package org.gridsuite.odre.server.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -52,8 +51,6 @@ public final class FileValidator {
     protected static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList(LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
 
     public static boolean validateSubstations(MultipartFile file) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CsvMapReader mapReader = new CsvMapReader(fileReader, CSV_PREFERENCE);) {
             final String[] headers = mapReader.getHeader(true);
@@ -70,8 +67,6 @@ public final class FileValidator {
 
     public static Map<String, BufferedReader> validateLines(List<MultipartFile> files) {
         Map<String, BufferedReader> mapResult = new HashMap<>();
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         files.stream().forEach(file -> {
             try (CsvMapReader mapReader = new CsvMapReader(new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)), CSV_PREFERENCE);) {
                 final String[] headers = mapReader.getHeader(true);
