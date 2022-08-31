@@ -41,10 +41,10 @@ public final class FileValidator {
     public static final String TYPE = "text/csv";
     protected static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
             Map.of("id1", "Code ligne 1", "id2", "Code ligne 2", "id3", "Code ligne 3", "id4", "Code ligne 4", "id5", "Code ligne 5"));
-    public static final String LONGITUDE_DEBUT_SEGMENT_DD = "Longitude DEBUT segment (DD)";
-    public static final String LATITUDE_DEBUT_SEGMENT_DD = "Latitude DEBUT segment (DD)";
-    public static final String LONGITUDE_ARRIVEE_SEGMENT_DD = "Longitude ARRIVEE segment (DD)";
-    public static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude ARRIVEE segment (DD)";
+    public static final String LONGITUDE_DEBUT_SEGMENT_DD = "Longitude début segment (DD)";
+    public static final String LATITUDE_DEBUT_SEGMENT_DD = "Latitude début segment (DD)";
+    public static final String LONGITUDE_ARRIVEE_SEGMENT_DD = "Longitude arrivée segment (DD)";
+    public static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude arrivée segment (DD)";
     protected static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
             Map.of("long1", LONGITUDE_DEBUT_SEGMENT_DD, "lat1", LATITUDE_DEBUT_SEGMENT_DD, "long2", LONGITUDE_ARRIVEE_SEGMENT_DD, "lat2", LATITUDE_ARRIVEE_SEGMENT_DD));
     protected static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList("Code poste", "Longitude poste (DD)", "Latitude poste (DD)");
