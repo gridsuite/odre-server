@@ -176,7 +176,7 @@ public final class GeographicDataParser {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(idsColumnsName.get("id1")), row.get(idsColumnsName.get("id2")), row.get(idsColumnsName.get("id3")), row.get(idsColumnsName.get("id4")), row.get(idsColumnsName.get("id5"))).filter(id -> id != null).collect(Collectors.toList());
+                List<String> ids = Stream.of(row.get(idsColumnsName.get("id1")), row.get(idsColumnsName.get("id2")), row.get(idsColumnsName.get("id3")), row.get(idsColumnsName.get("id4")), row.get(idsColumnsName.get("id5"))).filter(Objects::nonNull).collect(Collectors.toList());
                 if (ids.isEmpty()) {
                     continue;
                 }
