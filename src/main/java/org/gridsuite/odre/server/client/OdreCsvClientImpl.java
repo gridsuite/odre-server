@@ -8,7 +8,7 @@ package org.gridsuite.odre.server.client;
 
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
-import org.gridsuite.odre.server.utils.FileNameEnum;
+import org.gridsuite.odre.server.utils.FileTypeEnum;
 import org.gridsuite.odre.server.utils.FileValidator;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.springframework.stereotype.Component;
@@ -58,8 +58,8 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
     public List<LineGeoData> getLinesFromCsv(List<MultipartFile> files) {
         Map<String, BufferedReader> mapValidation = FileValidator.validateLines(files);
         if (mapValidation.size() == 3) {
-            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileNameEnum.AERIAL_LINES.getValue()), mapValidation.get(FileNameEnum.UNDERGROUND_LINES.getValue()),
-                    GeographicDataParser.parseSubstations(mapValidation.get(FileNameEnum.SUBSTATIONS.getValue()))).values());
+            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileTypeEnum.AERIAL_LINES.getValue()), mapValidation.get(FileTypeEnum.UNDERGROUND_LINES.getValue()),
+                    GeographicDataParser.parseSubstations(mapValidation.get(FileTypeEnum.SUBSTATIONS.getValue()))).values());
         } else {
             return new ArrayList<>();
         }

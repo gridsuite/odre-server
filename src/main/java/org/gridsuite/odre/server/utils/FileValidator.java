@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,19 +23,12 @@ import java.util.*;
  */
 public final class FileValidator {
 
-    private static FileValidator instance;
-
     private FileValidator() {
 
     }
 
-    public static FileValidator getInstance() {
-        if (instance == null) {
-            instance = new FileValidator();
-        }
-        return instance;
-    }
-
+    public static final String COUNTRY_FR = "FR";
+    private static FileValidator instance;
     public static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
     public static final String TYPE = "text/csv";
     protected static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
@@ -46,9 +39,19 @@ public final class FileValidator {
     public static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude arrivée segment (DD)";
     protected static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
             Map.of("long1", LONGITUDE_DEBUT_SEGMENT_DD, "lat1", LATITUDE_DEBUT_SEGMENT_DD, "long2", LONGITUDE_ARRIVEE_SEGMENT_DD, "lat2", LATITUDE_ARRIVEE_SEGMENT_DD));
-    protected static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList("Code poste", "Longitude poste (DD)", "Latitude poste (DD)");
+    protected static final String CODE_POSTE = "Code poste";
+    public static final String LONGITUDE_POSTE_DD = "Longitude poste (DD)";
+    public static final String LATITUDE_POSTE_DD = "Latitude poste (DD)";
+    protected static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
     protected static final List<String> ARIAL_LINES_EXPECTED_HEADERS = Arrays.asList(LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
     protected static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList(LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
+
+    public static FileValidator getInstance() {
+        if (instance == null) {
+            instance = new FileValidator();
+        }
+        return instance;
+    }
 
     public static boolean validateSubstations(MultipartFile file) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
@@ -73,11 +76,11 @@ public final class FileValidator {
                 Map<String, String> row = mapReader.read(headers);
                 String typeOuvrage = row.get("Type ouvrage");
                 if (typeOuvrage == null && new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
-                    mapResult.putIfAbsent(FileNameEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+                    mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 } else if (StringUtils.equals(typeOuvrage, "AERIEN") && new HashSet<>(Arrays.asList(headers)).containsAll(ARIAL_LINES_EXPECTED_HEADERS)) {
-                    mapResult.putIfAbsent(FileNameEnum.AERIAL_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+                    mapResult.putIfAbsent(FileTypeEnum.AERIAL_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 } else if (StringUtils.equals(typeOuvrage, "SOUTERRAIN") && new HashSet<>(Arrays.asList(headers)).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS)) {
-                    mapResult.putIfAbsent(FileNameEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+                    mapResult.putIfAbsent(FileTypeEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

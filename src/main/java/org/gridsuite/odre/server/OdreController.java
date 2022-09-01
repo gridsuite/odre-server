@@ -62,12 +62,11 @@ public class OdreController {
             @ApiResponse(responseCode = "400", description = "invalid csv file or missing file(s)"),
     })
     public ResponseEntity<FileUploadResponse> pushLinesFromCsv(@RequestParam("files") MultipartFile[] files) {
-        //check if all files are present
         try {
-            List<MultipartFile> fileList = new ArrayList<>();
             if (Arrays.stream(files).filter(FileValidator::hasCSVFormat).count() != 3) {
                 return new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations !"), HttpStatus.BAD_REQUEST);
             } else {
+                List<MultipartFile> fileList = new ArrayList<>();
                 Arrays.stream(files).forEach(fileList::add);
                 return new ResponseEntity<>(odreService.pushLinesFromCsv(fileList), HttpStatus.OK);
             }

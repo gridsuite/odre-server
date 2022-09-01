@@ -53,12 +53,12 @@ public final class GeographicDataParser {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                String id = row.get("Code poste");
-                double lon = Double.parseDouble(row.get("Longitude poste (DD)"));
-                double lat = Double.parseDouble(row.get("Latitude poste (DD)"));
+                String id = row.get(FileValidator.CODE_POSTE);
+                double lon = Double.parseDouble(row.get(FileValidator.LONGITUDE_POSTE_DD));
+                double lat = Double.parseDouble(row.get(FileValidator.LATITUDE_POSTE_DD));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
-                    SubstationGeoData substationGeoData = new SubstationGeoData(id, "FR", new Coordinate(lat, lon));
+                    SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
                     substations.put(id, substationGeoData);
                 }
                 substationCount++;
@@ -128,7 +128,7 @@ public final class GeographicDataParser {
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
                     Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), coordinates);
+                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
                     lines.put(lineId, line);
                 } else {
                     oneConnectedSetDiscarded++;
@@ -153,7 +153,7 @@ public final class GeographicDataParser {
 
                 List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
                 Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
-                LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), aggregatedCoordinates);
+                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
                 lines.put(lineId, line);
             }
         }

@@ -25,7 +25,6 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +53,7 @@ public class OdreServiceImplTest {
     private OdreCsvClientImpl odreCsvClientImpl =  new OdreCsvClientImpl();
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         List<SubstationGeoData> substationGeoData = new ArrayList<>();
         substationGeoData.add(new SubstationGeoData("substation1", "FR", new Coordinate(1, 2)));
         substationGeoData.add(new SubstationGeoData("substation2", "FR", new Coordinate(3, 4)));
