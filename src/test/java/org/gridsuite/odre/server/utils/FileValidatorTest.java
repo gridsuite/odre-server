@@ -14,14 +14,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.ResourceUtils;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -44,11 +39,6 @@ public class FileValidatorTest {
         MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
         MockMultipartFile substationsFile = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
         MockMultipartFile invalidFile = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", invalideSubstationsBytes);
-
-        Map<String, BufferedReader> result = new HashMap<>();
-        result.putIfAbsent(FileNameEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(substationsFile.getInputStream(), StandardCharsets.UTF_8)));
-        result.putIfAbsent(FileNameEnum.AERIAL_LINES.getValue(), new BufferedReader(new InputStreamReader(aerialLinesFile.getInputStream(), StandardCharsets.UTF_8)));
-        result.putIfAbsent(FileNameEnum.UNDERGROUND_LINES.getValue(), new BufferedReader(new InputStreamReader(undergroundLinesFile.getInputStream(), StandardCharsets.UTF_8)));
 
         // test substations file validator with valid file
         Assertions.assertThat(FileValidator.getInstance().validateSubstations(file)).isTrue();
