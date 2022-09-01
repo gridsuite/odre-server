@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -61,14 +59,12 @@ public class OdreController {
             @ApiResponse(responseCode = "500", description = "fail to upload file(s)"),
             @ApiResponse(responseCode = "400", description = "invalid csv file or missing file(s)"),
     })
-    public ResponseEntity<FileUploadResponse> pushLinesFromCsv(@RequestParam("files") MultipartFile[] files) {
+    public ResponseEntity<FileUploadResponse> pushLinesFromCsv(@RequestParam("files") List<MultipartFile> files) {
         try {
-            if (Arrays.stream(files).filter(FileValidator::hasCSVFormat).count() != 3) {
+            if (files.stream().filter(FileValidator::hasCSVFormat).count() != 3) {
                 return new ResponseEntity<>(new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "Please upload all csv files Lines(AERIAL,UNDERGROUND) and Substations !"), HttpStatus.BAD_REQUEST);
             } else {
-                List<MultipartFile> fileList = new ArrayList<>();
-                Arrays.stream(files).forEach(fileList::add);
-                return new ResponseEntity<>(odreService.pushLinesFromCsv(fileList), HttpStatus.OK);
+                return new ResponseEntity<>(odreService.pushLinesFromCsv(files), HttpStatus.OK);
             }
         } catch (Exception e) {
             return new ResponseEntity<>(new FileUploadResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Fail to upload files ! " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
