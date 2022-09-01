@@ -71,7 +71,8 @@ public final class FileValidator {
                 return true;
             } else {
                 List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+                String fileName = file.getOriginalFilename();
+                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -114,7 +115,8 @@ public final class FileValidator {
             LOGGER.error("The file {} has no equipment type : {}", file.getOriginalFilename(), typeOuvrage);
         } else {
             List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+            String fileName = file.getOriginalFilename();
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
         }
     }
 
@@ -132,7 +134,8 @@ public final class FileValidator {
             mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+            String fileName = file.getOriginalFilename();
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
         }
     }
 
