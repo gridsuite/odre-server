@@ -6,7 +6,6 @@
  */
 package org.gridsuite.odre.server.utils;
 
-import com.powsybl.ws.commons.LogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.powsybl.ws.commons.LogUtils.sanitizeParam;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -72,7 +73,8 @@ public final class FileValidator {
                 return true;
             } else {
                 List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
+                String fileName = sanitizeParam(file.getOriginalFilename());
+                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -99,7 +101,8 @@ public final class FileValidator {
                         getResultOrLogError(headers, UNDERGROUND_LINES_EXPECTED_HEADERS, mapResult, FileTypeEnum.UNDERGROUND_LINES, file);
                         break;
                     default:
-                        LOGGER.error("The file {} has no known equipment type : {}", LogUtils.sanitizeParam(file.getOriginalFilename()), typeOuvrage);
+                        String fileName = sanitizeParam(file.getOriginalFilename());
+                        LOGGER.error("The file {} has no known equipment type : {}", fileName, typeOuvrage);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -109,13 +112,14 @@ public final class FileValidator {
     }
 
     private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, MultipartFile file, String[] headers, String typeOuvrage) throws IOException {
+        String fileName = sanitizeParam(file.getOriginalFilename());
         if (new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
             mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else if (isAerealOrUnderground(headers)) {
-            LOGGER.error("The file {} has no equipment type : {}", LogUtils.sanitizeParam(file.getOriginalFilename()), typeOuvrage);
+            LOGGER.error("The file {} has no equipment type : {}", fileName, typeOuvrage);
         } else {
             List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
         }
     }
 
@@ -133,7 +137,8 @@ public final class FileValidator {
             mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
+            String fileName = sanitizeParam(file.getOriginalFilename());
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileName, notFoundHeaders);
         }
     }
 
@@ -141,7 +146,8 @@ public final class FileValidator {
         if (FileValidator.TYPE.equals(file.getContentType())) {
             return true;
         }
-        LOGGER.error("The file {} is not in format {}", LogUtils.sanitizeParam(file.getOriginalFilename()), TYPE);
+        String fileName = sanitizeParam(file.getOriginalFilename());
+        LOGGER.error("The file {} is not in format {}", fileName, TYPE);
         return false;
     }
 }
