@@ -6,6 +6,7 @@
  */
 package org.gridsuite.odre.server.utils;
 
+import com.powsybl.ws.commons.LogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,7 +72,7 @@ public final class FileValidator {
                 return true;
             } else {
                 List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+                LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -98,7 +99,7 @@ public final class FileValidator {
                         getResultOrLogError(headers, UNDERGROUND_LINES_EXPECTED_HEADERS, mapResult, FileTypeEnum.UNDERGROUND_LINES, file);
                         break;
                     default:
-                        LOGGER.error("The file {} has no known equipment type : {}", file.getOriginalFilename(), typeOuvrage);
+                        LOGGER.error("The file {} has no known equipment type : {}", LogUtils.sanitizeParam(file.getOriginalFilename()), typeOuvrage);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -111,10 +112,10 @@ public final class FileValidator {
         if (new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
             mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else if (isAerealOrUnderground(headers)) {
-            LOGGER.error("The file {} has no equipment type : {}", file.getOriginalFilename(), typeOuvrage);
+            LOGGER.error("The file {} has no equipment type : {}", LogUtils.sanitizeParam(file.getOriginalFilename()), typeOuvrage);
         } else {
             List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
         }
     }
 
@@ -132,7 +133,7 @@ public final class FileValidator {
             mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, file.getOriginalFilename(), notFoundHeaders);
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, LogUtils.sanitizeParam(file.getOriginalFilename()), notFoundHeaders);
         }
     }
 
@@ -140,7 +141,7 @@ public final class FileValidator {
         if (FileValidator.TYPE.equals(file.getContentType())) {
             return true;
         }
-        LOGGER.error("The file {} is not in format {}", file.getOriginalFilename(), TYPE);
+        LOGGER.error("The file {} is not in format {}", LogUtils.sanitizeParam(file.getOriginalFilename()), TYPE);
         return false;
     }
 }
