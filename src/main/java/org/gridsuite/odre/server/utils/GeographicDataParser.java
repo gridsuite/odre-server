@@ -12,22 +12,21 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
-import org.jgrapht.Graphs;
 import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
+import org.supercsv.io.CsvMapReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Collections.min;
 import static java.util.Collections.reverse;
@@ -42,44 +41,32 @@ public final class GeographicDataParser {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
-
-    private static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
-
     private static final int THRESHOLD = 5;
 
     public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-
         int substationCount = 0;
 
-        try (CsvListReader csvReader = new CsvListReader(bufferedReader, CSV_PREFERENCE)) {
-            // skip header
-            csvReader.read();
-
-            List<String> tokens;
-            while ((tokens = csvReader.read()) != null) {
-                String id = tokens.get(0);
-
-                double lon = Double.parseDouble(tokens.get(5));
-                double lat = Double.parseDouble(tokens.get(6));
-
+        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE);) {
+            final String[] headers = mapReader.getHeader(true);
+            Map<String, String> row;
+            while ((row = mapReader.read(headers)) != null) {
+                String id = row.get(FileValidator.CODE_POSTE);
+                double lon = Double.parseDouble(row.get(FileValidator.LONGITUDE_POSTE_DD));
+                double lat = Double.parseDouble(row.get(FileValidator.LATITUDE_POSTE_DD));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
-                    SubstationGeoData substationGeoData = new SubstationGeoData(id, "FR", new Coordinate(lat, lon));
+                    SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
                     substations.put(id, substationGeoData);
                 }
-
                 substationCount++;
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
         LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
-
         return substations;
     }
 
@@ -120,8 +107,8 @@ public final class GeographicDataParser {
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr, 8, 9, 10, 11, new int[] {1, 17, 20, 23, 26});
-        parseLine(graphByLine, undergroundLinesBr, 10, 11, 12, 13, new int[] {2, 17, 20, 23, 26});
+        parseLine(graphByLine, aerialLinesBr);
+        parseLine(graphByLine, undergroundLinesBr);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -141,7 +128,7 @@ public final class GeographicDataParser {
                 if (ends.size() == 2) {
                     List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
                     Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                    LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), coordinates);
+                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
                     lines.put(lineId, line);
                 } else {
                     oneConnectedSetDiscarded++;
@@ -166,7 +153,7 @@ public final class GeographicDataParser {
 
                 List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
                 Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
-                LineGeoData line = new LineGeoData(lineId, "FR", "FR", substations.getLeft(), substations.getRight(), aggregatedCoordinates);
+                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
                 lines.put(lineId, line);
             }
         }
@@ -183,28 +170,21 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine,
-                                  BufferedReader br, int lon1Index, int lat1Index, int lon2Index, int lat2Index, int[] idsIndexes) {
-        try (CsvListReader csvReader = new CsvListReader(br, CSV_PREFERENCE)) {
-            // skip header
-            csvReader.read();
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
 
-            List<String> tokens;
-            while ((tokens = csvReader.read()) != null) {
-                List<String> tokensCopy = tokens;
-                List<String> ids = IntStream.of(idsIndexes)
-                        .mapToObj(tokensCopy::get)
-                        .filter(s -> s != null && !s.isEmpty())
-                        .collect(Collectors.toList());
-
+        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE);) {
+            final String[] headers = mapReader.getHeader(true);
+            Map<String, String> row;
+            while ((row = mapReader.read(headers)) != null) {
+                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
                 if (ids.isEmpty()) {
                     continue;
                 }
 
-                double lon1 = Double.parseDouble(tokens.get(lon1Index));
-                double lat1 = Double.parseDouble(tokens.get(lat1Index));
-                double lon2 = Double.parseDouble(tokens.get(lon2Index));
-                double lat2 = Double.parseDouble(tokens.get(lat2Index));
+                double lon1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG1_KEY)));
+                double lat1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT1_KEY)));
+                double lon2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG2_KEY)));
+                double lat2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT2_KEY)));
                 Coordinate coordinate1 = new Coordinate(lat1, lon1);
                 Coordinate coordinate2 = new Coordinate(lat2, lon2);
                 for (String lineId : ids) {
@@ -291,5 +271,4 @@ public final class GeographicDataParser {
         }
         return aggregatedCoordinates;
     }
-
 }
