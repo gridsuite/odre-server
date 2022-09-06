@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
             if (FileValidator.validateSubstations(file)) {
                 return new ArrayList<>(GeographicDataParser.parseSubstations(fileReader).values());
             } else {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -61,7 +62,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
             return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileTypeEnum.AERIAL_LINES.getValue()), mapValidation.get(FileTypeEnum.UNDERGROUND_LINES.getValue()),
                     GeographicDataParser.parseSubstations(mapValidation.get(FileTypeEnum.SUBSTATIONS.getValue()))).values());
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 

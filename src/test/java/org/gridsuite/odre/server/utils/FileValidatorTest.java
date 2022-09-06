@@ -41,19 +41,19 @@ public class FileValidatorTest {
         MockMultipartFile invalidFile = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", invalideSubstationsBytes);
 
         // test substations file validator with valid file
-        Assertions.assertThat(FileValidator.getInstance().validateSubstations(file)).isTrue();
+        Assertions.assertThat(FileValidator.validateSubstations(file)).isTrue();
         // test substations file validator with invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateSubstations(invalidFile)).isFalse();
+        Assertions.assertThat(FileValidator.validateSubstations(invalidFile)).isFalse();
         // test lines file validator with valid files
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile))).hasSize(3);
+        Assertions.assertThat(FileValidator.validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile))).hasSize(3);
         // test lines file validator with 1 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile))).hasSize(2);
+        Assertions.assertThat(FileValidator.validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile))).hasSize(2);
         // test lines file validator with 2 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile))).hasSize(1);
+        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile))).hasSize(1);
         // test lines file validator with 3 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile))).isEmpty();
+        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile))).isEmpty();
         // test lines file validator with 4 invalid file
-        Assertions.assertThat(FileValidator.getInstance().validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile))).isEmpty();
+        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile))).isEmpty();
     }
 
     @Test

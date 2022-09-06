@@ -67,26 +67,26 @@ public class OdreControllerTest {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations/upload").file(file))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations").file(file))
                 .andExpect(status().isOk());
 
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile))
                 .andExpect(status().isOk());
 
         // test substations with no file
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations/upload"))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations"))
                 .andExpect(status().isBadRequest());
         // test substations with invalid file
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations/upload").file(aerialLinesFile))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/substations").file(aerialLinesFile))
                 .andExpect(status().isBadRequest());
         // test lines with no files
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload"))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines"))
                 .andExpect(status().isBadRequest());
         // test lines with only 2 files
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines").file(substationsFile).file(aerialLinesFile))
                 .andExpect(status().isBadRequest());
         // test lines with 4  files
-        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines/upload").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile).file(undergroundLinesFile))
+        mvc.perform(multipart("/" + OdreController.API_VERSION + "/lines").file(substationsFile).file(aerialLinesFile).file(undergroundLinesFile).file(undergroundLinesFile))
                 .andExpect(status().isBadRequest());
     }
 }

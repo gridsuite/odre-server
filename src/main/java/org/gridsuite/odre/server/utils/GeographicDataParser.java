@@ -107,8 +107,8 @@ public final class GeographicDataParser {
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr, FileValidator.IDS_COLUMNS_NAME, FileValidator.LONG_LAT_COLUMNS_NAME);
-        parseLine(graphByLine, undergroundLinesBr, FileValidator.IDS_COLUMNS_NAME, FileValidator.LONG_LAT_COLUMNS_NAME);
+        parseLine(graphByLine, aerialLinesBr);
+        parseLine(graphByLine, undergroundLinesBr);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -170,21 +170,21 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br, Map<String, String> idsColumnsName, Map<String, String> longLatColumnsName) {
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
 
         try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE);) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(idsColumnsName.get("id1")), row.get(idsColumnsName.get("id2")), row.get(idsColumnsName.get("id3")), row.get(idsColumnsName.get("id4")), row.get(idsColumnsName.get("id5"))).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
                 if (ids.isEmpty()) {
                     continue;
                 }
 
-                double lon1 = Double.parseDouble(row.get(longLatColumnsName.get("long1")));
-                double lat1 = Double.parseDouble(row.get(longLatColumnsName.get("lat1")));
-                double lon2 = Double.parseDouble(row.get(longLatColumnsName.get("long2")));
-                double lat2 = Double.parseDouble(row.get(longLatColumnsName.get("lat2")));
+                double lon1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG1_KEY)));
+                double lat1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT1_KEY)));
+                double lon2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG2_KEY)));
+                double lat2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT2_KEY)));
                 Coordinate coordinate1 = new Coordinate(lat1, lon1);
                 Coordinate coordinate2 = new Coordinate(lat2, lon2);
                 for (String lineId : ids) {

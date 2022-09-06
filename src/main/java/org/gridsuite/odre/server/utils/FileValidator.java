@@ -35,7 +35,6 @@ public final class FileValidator {
     private static final String HEADERS_OF_FILE_HAS_CHANGED = "Invalid file, Headers of file {} has changed, header(s) not found: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileValidator.class);
     static final String COUNTRY_FR = "FR";
-    static FileValidator instance;
     static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
     static final String TYPE = "text/csv";
     public static final String CODE_LIGNE_1 = "Code ligne 1";
@@ -43,14 +42,21 @@ public final class FileValidator {
     public static final String CODE_LIGNE_3 = "Code ligne 3";
     public static final String CODE_LIGNE_4 = "Code ligne 4";
     public static final String CODE_LIGNE_5 = "Code ligne 5";
-    static final Map<String, String> IDS_COLUMNS_NAME = new HashMap<>(
-            Map.of("id1", CODE_LIGNE_1, "id2", CODE_LIGNE_2, "id3", CODE_LIGNE_3, "id4", CODE_LIGNE_4, "id5", CODE_LIGNE_5));
+    public static final String CODE_LIGNE_KEY_1 = "id1";
+    public static final String CODE_LIGNE_KEY_2 = "id2";
+    public static final String CODE_LIGNE_KEY_3 = "id3";
+    public static final String CODE_LIGNE_KEY_4 = "id4";
+    public static final String CODE_LIGNE_KEY_5 = "id5";
+    static final Map<String, String> IDS_COLUMNS_NAME = Map.of("id1", CODE_LIGNE_1, "id2", CODE_LIGNE_2, "id3", CODE_LIGNE_3, "id4", CODE_LIGNE_4, "id5", CODE_LIGNE_5);
     private static final String LONGITUDE_DEBUT_SEGMENT_DD = "Longitude début segment (DD)";
     private static final String LATITUDE_DEBUT_SEGMENT_DD = "Latitude début segment (DD)";
     private static final String LONGITUDE_ARRIVEE_SEGMENT_DD = "Longitude arrivée segment (DD)";
     private static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude arrivée segment (DD)";
-    static final Map<String, String> LONG_LAT_COLUMNS_NAME = new HashMap<>(
-            Map.of("long1", LONGITUDE_DEBUT_SEGMENT_DD, "lat1", LATITUDE_DEBUT_SEGMENT_DD, "long2", LONGITUDE_ARRIVEE_SEGMENT_DD, "lat2", LATITUDE_ARRIVEE_SEGMENT_DD));
+    public static final String LONG1_KEY = "long1";
+    public static final String LAT1_KEY = "lat1";
+    public static final String LONG2_KEY = "long2";
+    public static final String LAT2_KEY = "lat2";
+    static final Map<String, String> LONG_LAT_COLUMNS_NAME = Map.of(LONG1_KEY, LONGITUDE_DEBUT_SEGMENT_DD, LAT1_KEY, LATITUDE_DEBUT_SEGMENT_DD, LONG2_KEY, LONGITUDE_ARRIVEE_SEGMENT_DD, LAT2_KEY, LATITUDE_ARRIVEE_SEGMENT_DD);
     static final String CODE_POSTE = "Code poste";
     static final String LONGITUDE_POSTE_DD = "Longitude poste (DD)";
     static final String LATITUDE_POSTE_DD = "Latitude poste (DD)";
@@ -58,18 +64,11 @@ public final class FileValidator {
     private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = Arrays.asList(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
     private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
 
-    public static FileValidator getInstance() {
-        if (instance == null) {
-            instance = new FileValidator();
-        }
-        return instance;
-    }
-
     public static boolean validateSubstations(MultipartFile file) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CsvMapReader mapReader = new CsvMapReader(fileReader, CSV_PREFERENCE);) {
-            final String[] headers = mapReader.getHeader(true);
-            if (new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
+             CsvMapReader mapReader = new CsvMapReader(fileReader, CSV_PREFERENCE)) {
+            final List<String> headers = List.of(mapReader.getHeader(true));
+            if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
                 return true;
             } else {
                 List<String> notFoundHeaders = SUBSTATIONS_EXPECTED_HEADERS.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
@@ -86,9 +85,10 @@ public final class FileValidator {
     public static Map<String, BufferedReader> validateLines(List<MultipartFile> files) {
         Map<String, BufferedReader> mapResult = new HashMap<>();
         files.forEach(file -> {
-            try (CsvMapReader mapReader = new CsvMapReader(new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)), CSV_PREFERENCE);) {
-                final String[] headers = mapReader.getHeader(true);
-                Map<String, String> row = mapReader.read(headers);
+            try (CsvMapReader mapReader = new CsvMapReader(new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)), CSV_PREFERENCE)) {
+                final String[] headersString = mapReader.getHeader(true);
+                final List<String> headers = List.of(headersString);
+                Map<String, String> row = mapReader.read(headersString);
                 String typeOuvrage = row.get("Type ouvrage");
                 switch ((typeOuvrage != null) ? typeOuvrage : "NULL") {
                     case "NULL":
@@ -111,9 +111,9 @@ public final class FileValidator {
         return mapResult;
     }
 
-    private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, MultipartFile file, String[] headers, String typeOuvrage) throws IOException {
+    private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, MultipartFile file, List<String> headers, String typeOuvrage) throws IOException {
         String fileName = sanitizeParam(file.getOriginalFilename());
-        if (new HashSet<>(Arrays.asList(headers)).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
+        if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
             mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else if (isAerealOrUnderground(headers)) {
             LOGGER.error("The file {} has no equipment type : {}", fileName, typeOuvrage);
@@ -123,17 +123,17 @@ public final class FileValidator {
         }
     }
 
-    private static Predicate<String> isChangedHeaders(String[] headers) {
-        return h -> !Arrays.asList(headers).contains(h);
+    private static Predicate<String> isChangedHeaders(List<String> headers) {
+        return h -> !headers.contains(h);
     }
 
-    private static boolean isAerealOrUnderground(String[] headers) {
-        return new HashSet<>(Arrays.asList(headers)).containsAll(AERIAL_LINES_EXPECTED_HEADERS) ||
-                new HashSet<>(Arrays.asList(headers)).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS);
+    private static boolean isAerealOrUnderground(List<String> headers) {
+        return new HashSet<>(headers).containsAll(AERIAL_LINES_EXPECTED_HEADERS) ||
+                new HashSet<>(headers).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS);
     }
 
-    private static void getResultOrLogError(String[] headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, FileTypeEnum fileType, MultipartFile file) throws IOException {
-        if (new HashSet<>(Arrays.asList(headers)).containsAll(expectedHeaders)) {
+    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, FileTypeEnum fileType, MultipartFile file) throws IOException {
+        if (new HashSet<>(headers).containsAll(expectedHeaders)) {
             mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
