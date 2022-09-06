@@ -17,7 +17,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,9 +63,9 @@ public final class FileValidator {
     static final String CODE_POSTE = "Code poste";
     static final String LONGITUDE_POSTE_DD = "Longitude poste (DD)";
     static final String LATITUDE_POSTE_DD = "Latitude poste (DD)";
-    private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = Arrays.asList(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
-    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = Arrays.asList(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
-    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = Arrays.asList(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
+    private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
+    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
+    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
 
     public static boolean validateSubstations(MultipartFile file) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
