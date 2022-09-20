@@ -1,3 +1,7 @@
 spring:
   application:
     name: odre-server
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
