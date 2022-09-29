@@ -8,20 +8,27 @@ package org.gridsuite.odre.server.client;
 
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
+import org.gridsuite.odre.server.utils.FileTypeEnum;
+import org.gridsuite.odre.server.utils.FileValidator;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Component
-public class OdreCsvClientImpl implements OdreClient {
+public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
     @Override
     public List<SubstationGeoData> getSubstations() {
         return getSubstations(Paths.get(System.getenv("HOME") + "/GeoData/postes-electriques-rte.csv"));
@@ -33,6 +40,30 @@ public class OdreCsvClientImpl implements OdreClient {
                 Paths.get(System.getenv("HOME") + "/GeoData/lignes-souterraines-rte.csv"),
                 Paths.get(System.getenv("HOME") + "/GeoData/postes-electriques-rte.csv")
             );
+    }
+
+    @Override
+    public List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file) {
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            if (FileValidator.validateSubstations(file)) {
+                return new ArrayList<>(GeographicDataParser.parseSubstations(fileReader).values());
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public List<LineGeoData> getLinesFromCsv(List<MultipartFile> files) {
+        Map<String, BufferedReader> mapValidation = FileValidator.validateLines(files);
+        if (mapValidation.size() == 3) {
+            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileTypeEnum.AERIAL_LINES.getValue()), mapValidation.get(FileTypeEnum.UNDERGROUND_LINES.getValue()),
+                    GeographicDataParser.parseSubstations(mapValidation.get(FileTypeEnum.SUBSTATIONS.getValue()))).values());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public List<SubstationGeoData> getSubstations(Path path) {

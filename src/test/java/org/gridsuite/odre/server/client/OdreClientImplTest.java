@@ -21,6 +21,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
@@ -49,9 +50,9 @@ public class OdreClientImplTest {
 
     @Before
     public void setUp() throws IOException {
-        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte-light.csv")));
-        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv")));
-        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv")));
+        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
+        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
+        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
 
         given(openDataRest.exchange(
                 eq("/explore/dataset/postes-electriques-rte/download/?format=csv"),
@@ -86,46 +87,60 @@ public class OdreClientImplTest {
     }
 
     @Test
-    public void testCSVClientImpl() throws FileNotFoundException {
-
+    public void testCSVClientImpl() throws IOException {
+        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
+        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
+        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
+        MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
+        MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
         OdreCsvClientImpl odreCsvClient = new OdreCsvClientImpl();
 
-        List<LineGeoData> linesGeoData = odreCsvClient.getLines(ResourceUtils.getFile("classpath:lignes-aeriennes-rte-light.csv").toPath(),
-                ResourceUtils.getFile("classpath:lignes-souterraines-rte-light.csv").toPath(),
-                ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv").toPath()
+        List<LineGeoData> linesGeoData = odreCsvClient.getLines(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv").toPath(),
+                ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv").toPath(),
+                ResourceUtils.getFile("classpath:postes-electriques-rte.csv").toPath()
             );
 
-        List<SubstationGeoData> substationGeoData = odreCsvClient.getSubstations(ResourceUtils.getFile("classpath:postes-electriques-rte-light.csv").toPath());
+        List<SubstationGeoData> substationGeoData = odreCsvClient.getSubstations(ResourceUtils.getFile("classpath:postes-electriques-rte.csv").toPath());
 
         checkContent(linesGeoData, substationGeoData);
+
+        List<LineGeoData> linesGeoDataFromMultipart = odreCsvClient.getLinesFromCsv(List.of(substationsFile, aerialLinesFile, undergroundLinesFile));
+
+        List<SubstationGeoData> substationGeoDataFromMultipart = odreCsvClient.getSubstationsFromCsv(substationsFile);
+
+        checkContent(linesGeoDataFromMultipart, substationGeoDataFromMultipart);
     }
 
     private void checkContent(List<LineGeoData> linesGeoData, List<SubstationGeoData> substationGeoData) {
-        assertEquals(8, linesGeoData.size());
+        assertEquals(6, linesGeoData.size());
 
         List<String> ids = linesGeoData.stream().map(LineGeoData::getId).collect(Collectors.toList());
 
         //aerial lines
-        assertTrue(ids.contains("MEZE5L62ZRIC6"));
-        assertTrue(ids.contains("CUBNEL71DONZA"));
-        assertTrue(ids.contains("P.GASL61SAUS5"));
-        assertTrue(ids.contains("BONNIL61ZRIC5"));
-        assertTrue(ids.contains("GOURJL31MAZAM"));
-        assertTrue(ids.contains("MTRI5L41SEIGY"));
-        assertTrue(ids.contains("CUBNEL72DONZA"));
-        assertTrue(ids.contains("BELIEL31MASQU"));
+        assertTrue(ids.contains("ARGOEL71MANDA"));
+        assertTrue(ids.contains("COGNAL41JARNA"));
+        assertTrue(ids.contains("FERRIL31ZMERC"));
+        assertTrue(ids.contains("MOHONL31P.TER"));
+        assertTrue(ids.contains("PALUNL31ROUS5"));
 
-        assertEquals(5, substationGeoData.size());
+        assertEquals(10, substationGeoData.size());
 
         List<String> ids2 = substationGeoData.stream().map(SubstationGeoData::getId).collect(Collectors.toList());
 
-        assertTrue(ids2.contains("TREVI"));
-        assertTrue(ids2.contains("NERAC"));
-        assertTrue(ids2.contains("P.SEI"));
-        assertTrue(ids2.contains("VALIN"));
+        assertTrue(ids2.contains("V.SEP"));
+        assertTrue(ids2.contains("V.POR"));
+        assertTrue(ids2.contains("MONDI"));
+        assertTrue(ids2.contains("B.THO"));
+        assertTrue(ids2.contains("ZV.BE"));
+        assertTrue(ids2.contains("1AVAL"));
+        assertTrue(ids2.contains("1LART"));
+        assertTrue(ids2.contains("1ONER"));
+        assertTrue(ids2.contains("1SSFO"));
+        assertTrue(ids2.contains("A.ADO"));
 
-        assertEquals(49.5000166667, substationGeoData.stream().filter(s -> s.getId().equals("CAZE5")).collect(Collectors.toList()).get(0).getCoordinate().getLat(), 0.001);
-        assertEquals(1.25761944444, substationGeoData.stream().filter(s -> s.getId().equals("CAZE5")).collect(Collectors.toList()).get(0).getCoordinate().getLon(), 0.001);
+        assertEquals(49.35864164277698, substationGeoData.stream().filter(s -> s.getId().equals("V.SEP")).collect(Collectors.toList()).get(0).getCoordinate().getLat(), 0.001);
+        assertEquals(2.2014874715868253, substationGeoData.stream().filter(s -> s.getId().equals("V.SEP")).collect(Collectors.toList()).get(0).getCoordinate().getLon(), 0.001);
     }
 
     @Test

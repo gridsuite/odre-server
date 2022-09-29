@@ -6,7 +6,10 @@
  */
 package org.gridsuite.odre.server.services;
 
+import org.apache.commons.io.IOUtils;
 import org.gridsuite.odre.server.client.OdreClient;
+import org.gridsuite.odre.server.client.OdreCsvClient;
+import org.gridsuite.odre.server.client.OdreCsvClientImpl;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
@@ -17,8 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +41,16 @@ public class OdreServiceImplTest {
     private OdreClient client;
 
     @Mock
+    private OdreCsvClient csvClient;
+
+    @Mock
     private RestTemplate geoDataServerRest;
 
     @InjectMocks
     private OdreService odreService =  new OdreServiceImpl("https://localhost:8080");
+
+    @InjectMocks
+    private OdreCsvClientImpl odreCsvClientImpl =  new OdreCsvClientImpl();
 
     @Before
     public void setUp() {
@@ -65,11 +77,31 @@ public class OdreServiceImplTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws Exception {
+        byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
+        byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
+        byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
+        byte[] invalideSubstationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte-invalide.csv")));
+        MockMultipartFile invalidFile = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", invalideSubstationsBytes);
+
+        MockMultipartFile substationsFile = new MockMultipartFile("files", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+        MockMultipartFile aerialLinesFile = new MockMultipartFile("files", "lignes-aeriennes-rte.csv", "text/csv", aerialLinesBytes);
+        MockMultipartFile undergroundLinesFile = new MockMultipartFile("files", "lignes-souterraines-rte.csv", "text/csv", undergroundLinesBytes);
+        MockMultipartFile file = new MockMultipartFile("file", "postes-electriques-rte.csv", "text/csv", substationsBytes);
+
         assertEquals(3, client.getSubstations().size());
         assertEquals(3, client.getLines().size());
 
+        assertEquals(10, odreCsvClientImpl.getSubstationsFromCsv(file).size());
+        assertEquals(6, odreCsvClientImpl.getLinesFromCsv(List.of(substationsFile, aerialLinesFile, undergroundLinesFile)).size());
+
+        // test with invalid file
+        assertEquals(0, odreCsvClientImpl.getLinesFromCsv(List.of(invalidFile, aerialLinesFile, undergroundLinesFile)).size());
+        assertEquals(0, odreCsvClientImpl.getSubstationsFromCsv(invalidFile).size());
+
         odreService.pushLines();
         odreService.pushSubstations();
+        odreService.pushSubstationsFromCsv(file);
+        odreService.pushLinesFromCsv(List.of(substationsFile, aerialLinesFile, undergroundLinesFile));
     }
 }

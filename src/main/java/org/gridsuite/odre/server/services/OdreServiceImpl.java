@@ -7,18 +7,18 @@
 package org.gridsuite.odre.server.services;
 
 import org.gridsuite.odre.server.client.OdreClient;
+import org.gridsuite.odre.server.client.OdreCsvClient;
+import org.gridsuite.odre.server.dto.FileUploadResponse;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -36,6 +36,9 @@ public class OdreServiceImpl implements OdreService {
     @Autowired
     @Qualifier("odreDownloadClientImpl")
     private OdreClient client;
+
+    @Autowired
+    private OdreCsvClient csvClient;
 
     private RestTemplate geoDataServerRest;
 
@@ -80,5 +83,39 @@ public class OdreServiceImpl implements OdreService {
                 HttpMethod.POST,
                 requestEntity,
                 Void.class);
+    }
+
+    @Override
+    public FileUploadResponse pushSubstationsFromCsv(MultipartFile file) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(geoDataServerBaseUri + "/" + GEO_DATA_API_VERSION + "/substations");
+        List<SubstationGeoData> substationsGeoData = csvClient.getSubstationsFromCsv(file);
+        if (substationsGeoData.isEmpty()) {
+            return new FileUploadResponse(HttpStatus.BAD_REQUEST.value(), "File validation failed!");
+        }
+        HttpEntity<List<SubstationGeoData>> requestEntity = new HttpEntity<>(substationsGeoData, requestHeaders);
+        geoDataServerRest.exchange(uriBuilder.toUriString(),
+                HttpMethod.POST,
+                requestEntity,
+                Void.class);
+        return new FileUploadResponse(HttpStatus.OK.value(), "List of substations updated successfully");
+    }
+
+    @Override
+    public FileUploadResponse pushLinesFromCsv(List<MultipartFile> files) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(geoDataServerBaseUri + "/" + GEO_DATA_API_VERSION + "/lines");
+        List<LineGeoData> linesFromCsv = csvClient.getLinesFromCsv(files);
+        if (linesFromCsv.isEmpty()) {
+            return new FileUploadResponse(400, "File(s) validation failed!");
+        }
+        HttpEntity<List<LineGeoData>> requestEntity = new HttpEntity<>(linesFromCsv, requestHeaders);
+        geoDataServerRest.exchange(uriBuilder.toUriString(),
+                HttpMethod.POST,
+                requestEntity,
+                Void.class);
+        return new FileUploadResponse(HttpStatus.OK.value(), "List of lines updated successfully");
     }
 }
