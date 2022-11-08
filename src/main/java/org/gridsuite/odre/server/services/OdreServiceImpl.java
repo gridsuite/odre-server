@@ -45,7 +45,7 @@ public class OdreServiceImpl implements OdreService {
     private String geoDataServerBaseUri;
 
     @Autowired
-    public OdreServiceImpl(@Value("${geo-data-server.base.url:http://geo-data-server/}") String geoDataServerBaseUri) {
+    public OdreServiceImpl(@Value("${backing-services.geo-data-server.base-uri:http://geo-data-server/}") String geoDataServerBaseUri) {
         this.geoDataServerBaseUri = Objects.requireNonNull(geoDataServerBaseUri);
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         this.geoDataServerRest = restTemplateBuilder.build();
