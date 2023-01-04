@@ -1,6 +1,7 @@
 server:
   port: 8090
 
-backing-services:
-  geo-data-server:
-    base-uri: http://localhost:8087
+gridsuite:
+  services:
+    geo-data-server:
+      base-uri: http://localhost:8087
