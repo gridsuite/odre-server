@@ -77,7 +77,7 @@ public class OdreController {
             @ApiResponse(responseCode = "500", description = "fail to upload file"),
             @ApiResponse(responseCode = "400", description = "invalid csv file"),
     })
-    public ResponseEntity<FileUploadResponse>  pushSubstationsFromCsv(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<FileUploadResponse> pushSubstationsFromCsv(@RequestParam("file") MultipartFile file) {
         try {
             if (FileValidator.hasCSVFormat(file)) {
                 return new ResponseEntity<>(odreService.pushSubstationsFromCsv(file), HttpStatus.OK);

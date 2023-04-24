@@ -47,10 +47,10 @@ public class OdreServiceImplTest {
     private RestTemplate geoDataServerRest;
 
     @InjectMocks
-    private OdreService odreService =  new OdreServiceImpl("https://localhost:8080");
+    private OdreService odreService = new OdreServiceImpl("https://localhost:8080");
 
     @InjectMocks
-    private OdreCsvClientImpl odreCsvClientImpl =  new OdreCsvClientImpl();
+    private OdreCsvClientImpl odreCsvClientImpl = new OdreCsvClientImpl();
 
     @Before
     public void setUp() {
