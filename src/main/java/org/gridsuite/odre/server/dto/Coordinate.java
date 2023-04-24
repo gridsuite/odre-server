@@ -17,7 +17,7 @@ import lombok.*;
 @EqualsAndHashCode
 public class Coordinate {
 
-    private  double lat;
+    private double lat;
 
-    private  double lon;
+    private double lon;
 }

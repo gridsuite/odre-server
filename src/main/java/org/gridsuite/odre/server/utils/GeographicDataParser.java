@@ -151,7 +151,7 @@ public final class GeographicDataParser {
                     continue;
                 }
 
-                List<Coordinate> aggregatedCoordinates =  aggregateCoordinates(coordinatesComponents);
+                List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponents);
                 Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
                 LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
                 lines.put(lineId, line);

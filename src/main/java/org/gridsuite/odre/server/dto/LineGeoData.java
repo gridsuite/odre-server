@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 public class LineGeoData {
 
-    private  String id;
+    private String id;
 
     private String country1;
 
