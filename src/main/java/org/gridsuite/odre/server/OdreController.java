@@ -56,8 +56,8 @@ public class OdreController {
     @PostMapping(value = "/lines", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get lines coordinates from csv files and send them to geo data service")
     @ApiResponses (value = {@ApiResponse(responseCode = "200", description = "the list of lines was updated"),
-            @ApiResponse(responseCode = "500", description = "fail to upload file(s)"),
-            @ApiResponse(responseCode = "400", description = "invalid csv file or missing file(s)"),
+        @ApiResponse(responseCode = "500", description = "fail to upload file(s)"),
+        @ApiResponse(responseCode = "400", description = "invalid csv file or missing file(s)"),
     })
     public ResponseEntity<FileUploadResponse> pushLinesFromCsv(@RequestParam("files") List<MultipartFile> files) {
         try {
@@ -74,8 +74,8 @@ public class OdreController {
     @PostMapping(value = "/substations", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get Substations coordinates from Given CSV file and send them to geo data service")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "the list of substation was updated"),
-            @ApiResponse(responseCode = "500", description = "fail to upload file"),
-            @ApiResponse(responseCode = "400", description = "invalid csv file"),
+        @ApiResponse(responseCode = "500", description = "fail to upload file"),
+        @ApiResponse(responseCode = "400", description = "invalid csv file"),
     })
     public ResponseEntity<FileUploadResponse> pushSubstationsFromCsv(@RequestParam("file") MultipartFile file) {
         try {
