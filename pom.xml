@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <gridsuite-dependencies.version>26</gridsuite-dependencies.version>
+        <gridsuite-dependencies.version>28</gridsuite-dependencies.version>
         <supercsv.version>2.4.0</supercsv.version>
     </properties>
 
