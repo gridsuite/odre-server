@@ -6,10 +6,14 @@
  */
 package org.gridsuite.odre.server.client;
 
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -20,4 +24,8 @@ public interface OdreCsvClient {
     List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file);
 
     List<LineGeoData> getLinesFromCsv(List<MultipartFile> files);
+
+    static BOMInputStream toBOMInputStream(InputStream inputStream) throws IOException {
+        return BOMInputStream.builder().setInputStream(inputStream).setByteOrderMarks(ByteOrderMark.UTF_8).get();
+    }
 }

@@ -44,7 +44,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
 
     @Override
     public List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file) {
-        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(FileValidator.toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8))) {
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(OdreCsvClient.toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8))) {
             if (FileValidator.validateSubstations(file)) {
                 return new ArrayList<>(GeographicDataParser.parseSubstations(fileReader).values());
             } else {
