@@ -16,7 +16,6 @@ import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,36 +177,22 @@ public final class GeographicDataParser {
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
                 List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
-                if (ids.isEmpty()) {
+                GeoShape geoShape = GeoShapeDeserializer.read(String.valueOf(row.get(FileValidator.GEO_SHAPE)));
+                if (ids.isEmpty() || geoShape == null) {
                     continue;
                 }
 
-                GeoShape geoShape = GeoShapeDeserializer.read(String.valueOf(row.get(FileValidator.GEO_SHAPE)));
-                if (geoShape != null) {
-                    for (String lineId : ids) {
-                        Iterator<Coordinate> it = geoShape.coordinates().iterator();
-                        Coordinate previousCoordinate = null;
-                        while (it.hasNext()) {
-                            Coordinate coordinate = it.next();
-                            Graph<Coordinate, Object> graph = graphByLine.get(lineId);
-                            if (graph == null) {
-                                graph = new Pseudograph<>(Object.class);
-                                graphByLine.put(lineId, graph);
-                            }
-                            if (!graph.containsVertex(coordinate)) {
-                                graph.addVertex(coordinate);
-                            }
-                            if (previousCoordinate != null) {
-                                graph.addEdge(previousCoordinate, coordinate);
-                            }
-                            previousCoordinate = coordinate;
-                        }
-                    }
+                for (String lineId : ids) {
+                    createGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static LineGraph<Coordinate, Object> createGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
+        return (LineGraph<Coordinate, Object>) graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class));
     }
 
     private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, Graph<Coordinate, Object> graph) {
