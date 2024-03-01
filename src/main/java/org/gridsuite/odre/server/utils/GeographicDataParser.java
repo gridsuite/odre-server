@@ -178,12 +178,12 @@ public final class GeographicDataParser {
             while ((row = mapReader.read(headers)) != null) {
                 List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
                 GeoShape geoShape = GeoShapeDeserializer.read(String.valueOf(row.get(FileValidator.GEO_SHAPE)));
-                if (ids.isEmpty() || geoShape == null) {
+                if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
                 }
 
                 for (String lineId : ids) {
-                    createGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
+                    putLineGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
@@ -191,7 +191,7 @@ public final class GeographicDataParser {
         }
     }
 
-    private static LineGraph<Coordinate, Object> createGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
+    private static LineGraph<Coordinate, Object> putLineGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
         return (LineGraph<Coordinate, Object>) graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class));
     }
 
