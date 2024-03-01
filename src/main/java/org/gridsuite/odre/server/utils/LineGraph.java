@@ -8,8 +8,6 @@ package org.gridsuite.odre.server.utils;
 
 import org.jgrapht.graph.Pseudograph;
 
-import java.util.Iterator;
-
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
@@ -19,10 +17,8 @@ public class LineGraph<V, E> extends Pseudograph<V, E> {
     }
 
     public void addVerticesAndEdges(Iterable<V> vertices) {
-        Iterator<V> iterator = vertices.iterator();
         V previousVertex = null;
-        while (iterator.hasNext()) {
-            V vertex = iterator.next();
+        for (V vertex : vertices) {
             if (!containsVertex(vertex)) {
                 addVertex(vertex);
             }
@@ -33,3 +29,4 @@ public class LineGraph<V, E> extends Pseudograph<V, E> {
         }
     }
 }
+
