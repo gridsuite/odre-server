@@ -6,6 +6,8 @@
  */
 package org.gridsuite.odre.server.utils;
 
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -51,24 +54,16 @@ public final class FileValidator {
     public static final String CODE_LIGNE_KEY_4 = "id4";
     public static final String CODE_LIGNE_KEY_5 = "id5";
     static final Map<String, String> IDS_COLUMNS_NAME = Map.of("id1", CODE_LIGNE_1, "id2", CODE_LIGNE_2, "id3", CODE_LIGNE_3, "id4", CODE_LIGNE_4, "id5", CODE_LIGNE_5);
-    private static final String LONGITUDE_DEBUT_SEGMENT_DD = "Longitude début segment (DD)";
-    private static final String LATITUDE_DEBUT_SEGMENT_DD = "Latitude début segment (DD)";
-    private static final String LONGITUDE_ARRIVEE_SEGMENT_DD = "Longitude arrivée segment (DD)";
-    private static final String LATITUDE_ARRIVEE_SEGMENT_DD = "Latitude arrivée segment (DD)";
-    public static final String LONG1_KEY = "long1";
-    public static final String LAT1_KEY = "lat1";
-    public static final String LONG2_KEY = "long2";
-    public static final String LAT2_KEY = "lat2";
-    static final Map<String, String> LONG_LAT_COLUMNS_NAME = Map.of(LONG1_KEY, LONGITUDE_DEBUT_SEGMENT_DD, LAT1_KEY, LATITUDE_DEBUT_SEGMENT_DD, LONG2_KEY, LONGITUDE_ARRIVEE_SEGMENT_DD, LAT2_KEY, LATITUDE_ARRIVEE_SEGMENT_DD);
+    public static final String GEO_SHAPE = "Geo Shape";
     static final String CODE_POSTE = "Code poste";
     static final String LONGITUDE_POSTE_DD = "Longitude poste (DD)";
     static final String LATITUDE_POSTE_DD = "Latitude poste (DD)";
     private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
-    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
-    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, LONGITUDE_DEBUT_SEGMENT_DD, LATITUDE_DEBUT_SEGMENT_DD, LONGITUDE_ARRIVEE_SEGMENT_DD, LATITUDE_ARRIVEE_SEGMENT_DD);
+    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
+    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
 
     public static boolean validateSubstations(MultipartFile file) {
-        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8));
              CsvMapReader mapReader = new CsvMapReader(fileReader, CSV_PREFERENCE)) {
             final List<String> headers = List.of(mapReader.getHeader(true));
             if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
@@ -88,7 +83,7 @@ public final class FileValidator {
     public static Map<String, BufferedReader> validateLines(List<MultipartFile> files) {
         Map<String, BufferedReader> mapResult = new HashMap<>();
         files.forEach(file -> {
-            try (CsvMapReader mapReader = new CsvMapReader(new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)), CSV_PREFERENCE)) {
+            try (CsvMapReader mapReader = new CsvMapReader(new BufferedReader(new InputStreamReader(toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8)), CSV_PREFERENCE)) {
                 final String[] headersString = mapReader.getHeader(true);
                 final List<String> headers = List.of(headersString);
                 Map<String, String> row = mapReader.read(headersString);
@@ -117,7 +112,7 @@ public final class FileValidator {
     private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, MultipartFile file, List<String> headers, String typeOuvrage) throws IOException {
         String fileName = sanitizeParam(file.getOriginalFilename());
         if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
-            mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+            mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8)));
         } else if (isAerealOrUnderground(headers)) {
             LOGGER.error("The file {} has no equipment type : {}", fileName, typeOuvrage);
         } else {
@@ -137,7 +132,7 @@ public final class FileValidator {
 
     private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, FileTypeEnum fileType, MultipartFile file) throws IOException {
         if (new HashSet<>(headers).containsAll(expectedHeaders)) {
-            mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
+            mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(toBOMInputStream(file.getInputStream()), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
             String fileName = sanitizeParam(file.getOriginalFilename());
@@ -152,6 +147,10 @@ public final class FileValidator {
         String fileName = sanitizeParam(file.getOriginalFilename());
         LOGGER.error("The file {} is not in format {}", fileName, TYPE);
         return false;
+    }
+
+    public static BOMInputStream toBOMInputStream(InputStream inputStream) throws IOException {
+        return BOMInputStream.builder().setInputStream(inputStream).setByteOrderMarks(ByteOrderMark.UTF_8).get();
     }
 }
 

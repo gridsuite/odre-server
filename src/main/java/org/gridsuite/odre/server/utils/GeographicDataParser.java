@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
+import org.gridsuite.odre.server.dto.GeoShape;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.jgrapht.Graph;
@@ -181,25 +182,27 @@ public final class GeographicDataParser {
                     continue;
                 }
 
-                double lon1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG1_KEY)));
-                double lat1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT1_KEY)));
-                double lon2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG2_KEY)));
-                double lat2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT2_KEY)));
-                Coordinate coordinate1 = new Coordinate(lat1, lon1);
-                Coordinate coordinate2 = new Coordinate(lat2, lon2);
-                for (String lineId : ids) {
-                    Graph<Coordinate, Object> graph = graphByLine.get(lineId);
-                    if (graph == null) {
-                        graph = new Pseudograph<>(Object.class);
-                        graphByLine.put(lineId, graph);
+                GeoShape geoShape = GeoShapeDeserializer.read(String.valueOf(row.get(FileValidator.GEO_SHAPE)));
+                if (geoShape != null) {
+                    for (String lineId : ids) {
+                        Iterator<Coordinate> it = geoShape.coordinates().iterator();
+                        Coordinate previousCoordinate = null;
+                        while (it.hasNext()) {
+                            Coordinate coordinate = it.next();
+                            Graph<Coordinate, Object> graph = graphByLine.get(lineId);
+                            if (graph == null) {
+                                graph = new Pseudograph<>(Object.class);
+                                graphByLine.put(lineId, graph);
+                            }
+                            if (!graph.containsVertex(coordinate)) {
+                                graph.addVertex(coordinate);
+                            }
+                            if (previousCoordinate != null) {
+                                graph.addEdge(previousCoordinate, coordinate);
+                            }
+                            previousCoordinate = coordinate;
+                        }
                     }
-                    if (!graph.containsVertex(coordinate1)) {
-                        graph.addVertex(coordinate1);
-                    }
-                    if (!graph.containsVertex(coordinate2)) {
-                        graph.addVertex(coordinate2);
-                    }
-                    graph.addEdge(coordinate1, coordinate2);
                 }
             }
         } catch (IOException e) {
