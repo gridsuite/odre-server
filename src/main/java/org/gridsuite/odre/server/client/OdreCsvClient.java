@@ -20,5 +20,4 @@ public interface OdreCsvClient {
     List<SubstationGeoData> getSubstationsFromCsv(MultipartFile file);
 
     List<LineGeoData> getLinesFromCsv(List<MultipartFile> files);
-
 }
