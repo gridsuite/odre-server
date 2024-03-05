@@ -183,7 +183,7 @@ public final class GeographicDataParser {
                 }
 
                 for (String lineId : ids) {
-                    ((LineGraph<Coordinate, Object>)graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class))).addVerticesAndEdges(geoShape.coordinates());
+                    putLineGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
