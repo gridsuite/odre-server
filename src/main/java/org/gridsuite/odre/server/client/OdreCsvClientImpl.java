@@ -68,7 +68,7 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
     }
 
     public List<SubstationGeoData> getSubstations(Path path) {
-        try (BufferedReader bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -76,9 +76,9 @@ public class OdreCsvClientImpl implements OdreClient, OdreCsvClient {
     }
 
     public List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
-        try (BufferedReader aerialBufferedReader = Files.newBufferedReader(aerialLinesFilePath, StandardCharsets.UTF_8);
-            BufferedReader undergroundBufferedReader = Files.newBufferedReader(undergroundLinesFilePath, StandardCharsets.UTF_8);
-            BufferedReader substationBufferedReader = Files.newBufferedReader(substationPath, StandardCharsets.UTF_8);
+        try (BufferedReader aerialBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(aerialLinesFilePath))));
+            BufferedReader undergroundBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(undergroundLinesFilePath))));
+            BufferedReader substationBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))));
             ) {
             return new ArrayList<>(GeographicDataParser.parseLines(aerialBufferedReader, undergroundBufferedReader,
                 GeographicDataParser.parseSubstations(substationBufferedReader)).values());
