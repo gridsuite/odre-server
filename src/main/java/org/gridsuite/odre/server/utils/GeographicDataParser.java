@@ -10,12 +10,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.odre.server.dto.Coordinate;
+import org.gridsuite.odre.server.dto.GeoShape;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,34 +177,22 @@ public final class GeographicDataParser {
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
                 List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
-                if (ids.isEmpty()) {
+                GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
+                if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
                 }
 
-                double lon1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG1_KEY)));
-                double lat1 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT1_KEY)));
-                double lon2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LONG2_KEY)));
-                double lat2 = Double.parseDouble(row.get(FileValidator.LONG_LAT_COLUMNS_NAME.get(FileValidator.LAT2_KEY)));
-                Coordinate coordinate1 = new Coordinate(lat1, lon1);
-                Coordinate coordinate2 = new Coordinate(lat2, lon2);
                 for (String lineId : ids) {
-                    Graph<Coordinate, Object> graph = graphByLine.get(lineId);
-                    if (graph == null) {
-                        graph = new Pseudograph<>(Object.class);
-                        graphByLine.put(lineId, graph);
-                    }
-                    if (!graph.containsVertex(coordinate1)) {
-                        graph.addVertex(coordinate1);
-                    }
-                    if (!graph.containsVertex(coordinate2)) {
-                        graph.addVertex(coordinate2);
-                    }
-                    graph.addEdge(coordinate1, coordinate2);
+                    putLineGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static LineGraph<Coordinate, Object> putLineGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
+        return (LineGraph<Coordinate, Object>) graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class));
     }
 
     private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, Graph<Coordinate, Object> graph) {
