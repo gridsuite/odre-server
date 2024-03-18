@@ -9,6 +9,7 @@ package org.gridsuite.odre.server.client;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
+import org.gridsuite.odre.server.utils.InputUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,24 +71,32 @@ public class OdreDownloadClientImpl implements OdreClient {
 
     @Override
     public List<SubstationGeoData> getSubstations() {
-        ByteArrayInputStream byteArrayInputStream = downloadFile("/explore/dataset/postes-electriques-rte/download/");
-        LOGGER.info("substations were downloaded from the open data server");
-        return new ArrayList<>(GeographicDataParser.parseSubstations(new BufferedReader(new InputStreamReader(byteArrayInputStream))).values());
+        try {
+            ByteArrayInputStream byteArrayInputStream = downloadFile("/explore/dataset/postes-electriques-rte/download/");
+            LOGGER.info("substations were downloaded from the open data server");
+            return new ArrayList<>(GeographicDataParser.parseSubstations(new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(byteArrayInputStream)))).values());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public List<LineGeoData> getLines() {
-        ByteArrayInputStream undergroundLinesByteArrayInputStream = downloadFile("/explore/dataset/lignes-souterraines-rte/download/");
-        LOGGER.info("Underground lines were downloaded from the open data server");
-        ByteArrayInputStream aerialLinesByteArrayInputStream = downloadFile("/explore/dataset/lignes-aeriennes-rte/download/");
-        LOGGER.info("Aerial lines were downloaded from the open data server");
-        ByteArrayInputStream substationInputStream = downloadFile("/explore/dataset/postes-electriques-rte/download/");
-        LOGGER.info("substations were downloaded from the open data server");
-        Map<String, SubstationGeoData> substationsGeoData = GeographicDataParser.parseSubstations(new BufferedReader(new InputStreamReader(substationInputStream)));
-        return new ArrayList<>(
-            GeographicDataParser.parseLines(new BufferedReader(new InputStreamReader(aerialLinesByteArrayInputStream)),
-                                            new BufferedReader(new InputStreamReader(undergroundLinesByteArrayInputStream)),
-                                            substationsGeoData).values());
+        try {
+            ByteArrayInputStream undergroundLinesByteArrayInputStream = downloadFile("/explore/dataset/lignes-souterraines-rte/download/");
+            LOGGER.info("Underground lines were downloaded from the open data server");
+            ByteArrayInputStream aerialLinesByteArrayInputStream = downloadFile("/explore/dataset/lignes-aeriennes-rte/download/");
+            LOGGER.info("Aerial lines were downloaded from the open data server");
+            ByteArrayInputStream substationInputStream = downloadFile("/explore/dataset/postes-electriques-rte/download/");
+            LOGGER.info("substations were downloaded from the open data server");
+            Map<String, SubstationGeoData> substationsGeoData = GeographicDataParser.parseSubstations(new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(substationInputStream))));
+            return new ArrayList<>(
+                GeographicDataParser.parseLines(new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(aerialLinesByteArrayInputStream))),
+                    new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(undergroundLinesByteArrayInputStream))),
+                    substationsGeoData).values());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public void setOpenDataRest(RestTemplate openDataRest) {
