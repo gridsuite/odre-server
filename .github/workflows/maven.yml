@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - 'main'
+      - 'test-fix-CI'
     tags:
       - 'v[0-9]*'
   pull_request:
@@ -36,7 +36,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Build Docker image - Main
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/test-fix-CI'
         run: >
           mvn --batch-mode deploy -DskipTests -Dmaven.install.skip -Dmaven.deploy.skip -Dpowsybl.docker.deploy
           -Djib.httpTimeout=60000
@@ -54,7 +54,7 @@ jobs:
           -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
           
       - name: Broadcast update event
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/test-fix-CI'
         uses: gridsuite/broadcast-event@main
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
