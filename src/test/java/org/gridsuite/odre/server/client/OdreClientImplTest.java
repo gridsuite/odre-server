@@ -12,29 +12,24 @@ import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileInputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -42,14 +37,14 @@ import static org.mockito.BDDMockito.given;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-@RunWith(SpringRunner.class)
-public class OdreClientImplTest {
+@SpringBootTest
+class OdreClientImplTest {
 
     @MockBean
     private RestTemplate openDataRest;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws Exception {
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
@@ -74,8 +69,7 @@ public class OdreClientImplTest {
     }
 
     @Test
-    public void testDownloadClientImpl() throws FileNotFoundException {
-
+    void testDownloadClientImpl() {
         OdreDownloadClientImpl odreOpenDataClientImpl = new OdreDownloadClientImpl();
         odreOpenDataClientImpl.setOpenDataRest(openDataRest);
 
@@ -87,7 +81,7 @@ public class OdreClientImplTest {
     }
 
     @Test
-    public void testCSVClientImpl() throws IOException {
+    void testCSVClientImpl() throws Exception {
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
@@ -144,7 +138,7 @@ public class OdreClientImplTest {
     }
 
     @Test
-    public void testFindSubstationStart() {
+    void testFindSubstationStart() {
         List<Coordinate> refList = List.of(new Coordinate(1, 1), new Coordinate(1, 5), new Coordinate(5, 1), new Coordinate(5, 5));
         List<Coordinate> halfLine = List.of(new Coordinate(1, 1), new Coordinate(1, 3));
         Map<String, SubstationGeoData> substations = new HashMap<>();
@@ -178,6 +172,5 @@ public class OdreClientImplTest {
 
         res = GeographicDataParser.substationOrder(substations, "CAIN  Z4JOHN", tmpList);
         assertEquals(Pair.of("", "CAIN"), res);
-
     }
 }

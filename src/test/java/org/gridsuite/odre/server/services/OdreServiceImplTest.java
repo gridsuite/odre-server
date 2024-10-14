@@ -13,13 +13,13 @@ import org.gridsuite.odre.server.client.OdreCsvClientImpl;
 import org.gridsuite.odre.server.dto.Coordinate;
 import org.gridsuite.odre.server.dto.LineGeoData;
 import org.gridsuite.odre.server.dto.SubstationGeoData;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-@RunWith(MockitoJUnitRunner.class)
-public class OdreServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+class OdreServiceImplTest {
 
     @Mock
     private OdreClient client;
@@ -52,8 +52,8 @@ public class OdreServiceImplTest {
     @InjectMocks
     private OdreCsvClientImpl odreCsvClientImpl = new OdreCsvClientImpl();
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         List<SubstationGeoData> substationGeoData = new ArrayList<>();
         substationGeoData.add(new SubstationGeoData("substation1", "FR", new Coordinate(1, 2)));
         substationGeoData.add(new SubstationGeoData("substation2", "FR", new Coordinate(3, 4)));
@@ -77,7 +77,7 @@ public class OdreServiceImplTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));

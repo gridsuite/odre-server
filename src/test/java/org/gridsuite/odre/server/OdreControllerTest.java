@@ -8,16 +8,14 @@ package org.gridsuite.odre.server;
 
 import org.apache.commons.io.IOUtils;
 import org.gridsuite.odre.server.services.OdreService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 
@@ -32,10 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-@RunWith(SpringRunner.class)
 @WebMvcTest(OdreController.class)
 @ContextConfiguration(classes = {OdreApplication.class, OdreSwaggerConfig.class})
-public class OdreControllerTest {
+class OdreControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -43,13 +40,13 @@ public class OdreControllerTest {
     @MockBean
     private OdreService odreService;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
         byte[] undergroundLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-souterraines-rte.csv")));
         byte[] substationsBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:postes-electriques-rte.csv")));
@@ -90,4 +87,3 @@ public class OdreControllerTest {
                 .andExpect(status().isBadRequest());
     }
 }
-
