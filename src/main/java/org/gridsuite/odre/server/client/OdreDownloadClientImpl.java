@@ -12,17 +12,20 @@ import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.gridsuite.odre.server.utils.InputUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Parse RTE substation and line segment coordinates.
@@ -48,7 +51,6 @@ public class OdreDownloadClientImpl implements OdreClient {
 
     private RestTemplate openDataRest;
 
-    @Autowired
     public OdreDownloadClientImpl() {
         String openDataBaseUri = "https://opendata.reseaux-energies.fr";
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();

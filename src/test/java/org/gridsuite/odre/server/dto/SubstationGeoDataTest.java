@@ -6,17 +6,16 @@
  */
 package org.gridsuite.odre.server.dto;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class SubstationGeoDataTest {
-
+class SubstationGeoDataTest {
     @Test
-    public void test() {
+    void test() {
         SubstationGeoData substationGeoData = new SubstationGeoData("id", "FR", new Coordinate(1, 1));
 
         assertEquals("id", substationGeoData.getId());

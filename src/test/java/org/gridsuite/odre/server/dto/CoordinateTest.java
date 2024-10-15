@@ -6,17 +6,16 @@
  */
 package org.gridsuite.odre.server.dto;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class CoordinateTest {
-
+class CoordinateTest {
     @Test
-    public void test() {
+    void test() {
         Coordinate coordinate = new Coordinate(1, 2);
         assertEquals(1, coordinate.getLat(), 0);
         assertEquals(2, coordinate.getLon(), 0);

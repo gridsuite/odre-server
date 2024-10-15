@@ -1,13 +1,12 @@
 package org.gridsuite.odre.server.client;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BaseVoltageTest {
-
+class BaseVoltageTest {
     @Test
-    public void test() {
+    void test() {
         BaseVoltage baseVoltage = BaseVoltage.VL_90_KV;
         assertEquals(90, baseVoltage.getValue());
 
@@ -22,6 +21,5 @@ public class BaseVoltageTest {
         assertEquals(-1, BaseVoltage.parse("<45kV").getValue());
         assertEquals(0, BaseVoltage.parse("HORS TENSION").getValue());
         assertEquals(-99, BaseVoltage.parse("COURANT CONTINU").getValue());
-
     }
 }
