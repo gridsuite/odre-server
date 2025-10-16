@@ -15,12 +15,12 @@ import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,7 +40,7 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest
 class OdreClientImplTest {
 
-    @MockBean
+    @MockitoBean
     private RestTemplate openDataRest;
 
     @BeforeEach
