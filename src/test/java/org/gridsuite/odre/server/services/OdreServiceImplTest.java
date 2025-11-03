@@ -20,7 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,14 +48,21 @@ class OdreServiceImplTest {
     @Mock
     private RestTemplate geoDataServerRest;
 
-    @InjectMocks
-    private OdreService odreService = new OdreServiceImpl("https://localhost:8080");
+    @Mock
+    private RestTemplateBuilder restTemplateBuilder;
+
+    private OdreService odreService;
 
     @InjectMocks
     private OdreCsvClientImpl odreCsvClientImpl = new OdreCsvClientImpl();
 
     @BeforeEach
     void setUp() {
+        Mockito.when(restTemplateBuilder.build()).thenReturn(geoDataServerRest);
+        odreService = new OdreServiceImpl("https://localhost:8080", restTemplateBuilder);
+        ReflectionTestUtils.setField(odreService, "client", client);
+        ReflectionTestUtils.setField(odreService, "csvClient", csvClient);
+
         List<SubstationGeoData> substationGeoData = new ArrayList<>();
         substationGeoData.add(new SubstationGeoData("substation1", "FR", new Coordinate(1, 2)));
         substationGeoData.add(new SubstationGeoData("substation2", "FR", new Coordinate(3, 4)));

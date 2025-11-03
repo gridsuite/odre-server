@@ -14,7 +14,9 @@ import org.gridsuite.odre.server.dto.SubstationGeoData;
 import org.gridsuite.odre.server.utils.GeographicDataParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,9 @@ class OdreClientImplTest {
     @MockitoBean
     private RestTemplate openDataRest;
 
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
     @BeforeEach
     void setUp() throws Exception {
         byte[] aerialLinesBytes = IOUtils.toByteArray(new FileInputStream(ResourceUtils.getFile("classpath:lignes-aeriennes-rte.csv")));
@@ -70,7 +75,7 @@ class OdreClientImplTest {
 
     @Test
     void testDownloadClientImpl() {
-        OdreDownloadClientImpl odreOpenDataClientImpl = new OdreDownloadClientImpl();
+        OdreDownloadClientImpl odreOpenDataClientImpl = new OdreDownloadClientImpl(restTemplateBuilder);
         odreOpenDataClientImpl.setOpenDataRest(openDataRest);
 
         List<LineGeoData> linesGeoData = odreOpenDataClientImpl.getLines();
