@@ -51,9 +51,8 @@ public class OdreDownloadClientImpl implements OdreClient {
 
     private RestTemplate openDataRest;
 
-    public OdreDownloadClientImpl() {
+    public OdreDownloadClientImpl(RestTemplateBuilder restTemplateBuilder) {
         String openDataBaseUri = "https://opendata.reseaux-energies.fr";
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         this.openDataRest = restTemplateBuilder.build();
         this.openDataRest.setUriTemplateHandler(new DefaultUriBuilderFactory(openDataBaseUri));
     }

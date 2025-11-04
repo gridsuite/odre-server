@@ -44,9 +44,9 @@ public class OdreServiceImpl implements OdreService {
 
     private String geoDataServerBaseUri;
 
-    public OdreServiceImpl(@Value("${gridsuite.services.geo-data-server.base-uri:http://geo-data-server/}") String geoDataServerBaseUri) {
+    public OdreServiceImpl(@Value("${gridsuite.services.geo-data-server.base-uri:http://geo-data-server/}") String geoDataServerBaseUri,
+                           RestTemplateBuilder restTemplateBuilder) {
         this.geoDataServerBaseUri = Objects.requireNonNull(geoDataServerBaseUri);
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         this.geoDataServerRest = restTemplateBuilder.build();
         this.geoDataServerRest.setUriTemplateHandler(new DefaultUriBuilderFactory(geoDataServerBaseUri));
     }
