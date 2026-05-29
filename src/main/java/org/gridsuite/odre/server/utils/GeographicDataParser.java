@@ -49,7 +49,7 @@ public final class GeographicDataParser {
         stopWatch.start();
         int substationCount = 0;
 
-        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE);) {
+        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE)) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
@@ -94,7 +94,8 @@ public final class GeographicDataParser {
             }
             return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
         } else {
-            boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
+            boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(),
+                    coordinates.get(coordinates.size() - 1));
             String substation = geo1 != null ? substation1 : substation2;
             return Pair.of(isStart ? substation : "", isStart ? "" : substation);
         }
@@ -172,11 +173,13 @@ public final class GeographicDataParser {
 
     private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
 
-        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE);) {
+        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE)) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)),
+                        row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)),
+                                row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;

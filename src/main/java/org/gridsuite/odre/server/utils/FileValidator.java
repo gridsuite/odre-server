@@ -61,6 +61,7 @@ public final class FileValidator {
     public static boolean validateSubstations(MultipartFile file) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(file.getInputStream()), StandardCharsets.UTF_8));
              CsvMapReader mapReader = new CsvMapReader(fileReader, CSV_PREFERENCE)) {
+            @SuppressWarnings("checkstyle:LambdaBodyLength")
             final List<String> headers = List.of(mapReader.getHeader(true));
             if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
                 return true;
@@ -76,6 +77,7 @@ public final class FileValidator {
         return false;
     }
 
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     public static Map<String, BufferedReader> validateLines(List<MultipartFile> files) {
         Map<String, BufferedReader> mapResult = new HashMap<>();
         files.forEach(file -> {
